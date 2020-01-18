@@ -54,10 +54,10 @@ We have used following technologies:
 
 ## Developers
 
-> **Aakash Goel**
+> **[Aakash Goel](https://github.com/goelaakash79)**
 
-> **Ritwick Bhargav**
+> **[Ritwick Bhargav](https://github.com/RitwickBhargav)**
 
-> **Shreeyanshi Gupta**
+> **[Shreeyanshi Gupta](https://github.com/shrynshigupta06)**
 
-> **Shubham Goswami**
+> **[Shubham Goswami](https://github.com/sgshubham98)**
