@@ -55,6 +55,9 @@ We have used following technologies:
 ## Developers
 
 > **Aakash Goel**
+
 > **Ritwick Bhargav**
+
 > **Shreeyanshi Gupta**
+
 > **Shubham Goswami**
