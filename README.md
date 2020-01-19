@@ -36,22 +36,6 @@ With shopping track, admin panel, will notify admin about the products with zero
 
 > **We can integrate shopkart easily in shopping marts like Easydays, Super-Market, Big Baazar, Vishal Mega Marts, just to enhance user experience a way better than ever.**
 
-# Technologies Used
-
-We have used following technologies:
-
->  Flutter (Android Frontend)
-
->  Reactjs (For Admin dashboard)
-
->  Nodejs (Backend)
-
->  MongoDB (No SQL database)
-
->  Nodemailer (for mailing service)
-
->  Heroku (for deploying)
-
 ## Developers
 
 > **[Aakash Goel](https://github.com/goelaakash79)**
