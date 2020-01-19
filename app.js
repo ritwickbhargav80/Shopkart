@@ -22,6 +22,13 @@ app.get("/", (req, res) => {
   return res.status(200).json({ message: "Shopkart Inc." });
 });
 
+const Shop = require("./models/Shop");
+const Product = require("./models/Products");
+const Customers = require("./models/Customers");
+
+app.use("/api/shop", require("./routes/shop"));
+app.use("/api/customer", require("./routes/customer"));
+
 app.get("*", (req, res) => {
   res.status(404).json({ message: "Not Found!" });
 });
