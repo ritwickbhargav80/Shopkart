@@ -64,7 +64,7 @@ CustomerSchema.methods.generateAuthToken = () => {
       role: this.role,
       email: this.email
     },
-    process.env.secret
+    process.env.SECRET
   );
   return token;
 };

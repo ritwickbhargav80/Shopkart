@@ -7,7 +7,7 @@ module.exports.adminAuth = (req, res, next) => {
   if (!token) {
     return res.status(401).json({ message: "Access denied!" });
   } else {
-    const decodedPayload = jwt.verify(token, process.env.secret);
+    const decodedPayload = jwt.verify(token, process.env.SECRET);
     req.user = decodedPayload;
     if (req.user.data.role === "admin") {
       return next();
@@ -22,7 +22,7 @@ module.exports.staffAuth = (req, res, next) => {
   if (!token) {
     return res.status(401).json({ message: "Access denied!" });
   } else {
-    const decodedPayload = jwt.verify(token, process.env.secret);
+    const decodedPayload = jwt.verify(token, process.env.SECRET);
     req.user = decodedPayload;
     if (req.user.data.role === "staff") {
       return next();
@@ -37,7 +37,7 @@ module.exports.customerAuth = (req, res, next) => {
   if (!token) {
     return res.status(401).json({ message: "Access denied!" });
   } else {
-    const decodedPayload = jwt.verify(token, process.env.secret);
+    const decodedPayload = jwt.verify(token, process.env.SECRET);
     req.user = decodedPayload;
     if (req.user.data.role === "customer") {
       return next();
@@ -52,7 +52,7 @@ module.exports.allAuth = (req, res, next) => {
   if (!token) {
     return res.status(401).json({ message: "Access denied!" });
   } else {
-    const decodedPayload = jwt.verify(token, process.env.secret);
+    const decodedPayload = jwt.verify(token, process.env.SECRET);
     req.user = decodedPayload;
     return next();
   }
