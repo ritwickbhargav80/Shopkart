@@ -732,3 +732,25 @@ module.exports.retryContactVerification = async (req, res) => {
     res.status(400).json({ message: "No User Found" });
   }
 };
+
+module.exports.profile = async (req, res) => {
+  let user = await User.findById(req.user.data._id);
+  id = user._id;
+  isEmailVerified = user.isEmailVerified;
+  isContactVerified = user.isContactVerified;
+  name = user.name;
+  email = user.email;
+  contact = user.contact;
+  role = user.role;
+  qrcode = user.qrcode.url;
+  return res.status(200).json({
+    _id: id,
+    isEmailVerified: isEmailVerified,
+    isContactVerified: isContactVerified,
+    name: name,
+    email: email,
+    contact: contact,
+    role: role,
+    qrcode: qrcode
+  });
+};
