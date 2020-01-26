@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-const User = require("../models/Customers");
+const User = require("../models/User");
 
 module.exports.adminAuth = (req, res, next) => {
   const token = req.header("x-auth-token");

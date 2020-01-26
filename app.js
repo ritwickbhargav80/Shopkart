@@ -24,10 +24,10 @@ app.get("/", (req, res) => {
 
 const Shop = require("./models/Shop");
 const Product = require("./models/Products");
-const Customers = require("./models/Customers");
+const User = require("./models/User");
 
 app.use("/api/shop", require("./routes/shop"));
-app.use("/api/customer", require("./routes/customer"));
+app.use("/api/users", require("./routes/user"));
 
 app.get("*", (req, res) => {
   res.status(404).json({ message: "Not Found!" });

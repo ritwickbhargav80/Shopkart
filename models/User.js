@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const uniqueValidator = require("mongoose-unique-validator");
 
-const CustomerSchema = mongoose.Schema({
+const UserSchema = mongoose.Schema({
   name: {
     type: String,
     required: true
@@ -51,12 +51,16 @@ const CustomerSchema = mongoose.Schema({
   role: {
     type: String,
     required: true
+  },
+  qrcode: {
+    id: String,
+    url: String
   }
 });
 
-CustomerSchema.plugin(uniqueValidator);
+UserSchema.plugin(uniqueValidator);
 
-CustomerSchema.methods.generateAuthToken = () => {
+UserSchema.methods.generateAuthToken = () => {
   const token = jwt.sign(
     {
       id: this._id,
@@ -69,4 +73,4 @@ CustomerSchema.methods.generateAuthToken = () => {
   return token;
 };
 
-const User = (module.exports = mongoose.model("Customer", CustomerSchema));
+const User = (module.exports = mongoose.model("User", UserSchema));
