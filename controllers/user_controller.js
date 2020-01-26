@@ -131,6 +131,7 @@ module.exports.register = async (req, res) => {
 };
 
 module.exports.login = async (req, res) => {
+  debugger
   let { email, mobile, password } = req.body;
   var user;
   user =
@@ -207,15 +208,15 @@ module.exports.login = async (req, res) => {
     }
     if (!user.qrcode.id) {
       let user1 = {
-        name,
-        email,
-        role,
-        contact
+        name: undefined,
+        email: undefined,
+        role: undefined,
+        contact: undefined
       };
-      user1.name = newUser.name;
-      user1.email = newUser.email;
-      user1.role = newUser.role;
-      user1.contact = newUser.contact;
+      user1.name = user.name;
+      user1.email = user.email;
+      user1.role = user.role;
+      user1.contact = user.contact;
       let JSONobject = JSON.stringify(user1);
       var opts = {
         errorCorrectionLevel: 'H',
@@ -268,17 +269,189 @@ module.exports.verifyEmail = async (req, res) => {
   let user = await User.findOne({ email: email });
   if (user) {
     if (user.isEmailVerified === true && user.isContactVerified === true) {
+      let user1 = {
+        name: undefined,
+        email: undefined,
+        role: undefined,
+        contact: undefined
+      };
+      user1.name = user.name;
+      user1.email = user.email;
+      user1.role = user.role;
+      user1.contact = user.contact;
+      let JSONobject = JSON.stringify(user1);
+      var opts = {
+        errorCorrectionLevel: 'H',
+        type: 'image/jpeg',
+        quality: 1,
+        margin: 1
+      }
+      qrcode.toDataURL(JSONobject, opts)
+        .then(url => {
+          cloudinary.uploader.upload(url, (result, error) => {
+            if (result) {
+              user.qrcode.id = result.public_id;
+              user.qrcode.url = result.url;
+              user.save();
+            } else if (error) {
+              console.log("QR Code is not Uploaded!");
+            }
+          });
+        })
+        .catch(err => {
+          console.error(err)
+        })
+    }
+    const token = jwt.sign(
+      {
+        type: "user",
+        data: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          contact: user.contact,
+          role: user.role
+        }
+      },
+      process.env.secret,
+      {
+        expiresIn: 604800 // for 1 week time in milliseconds
+      }
+    );
+    res
+      .header("x-auth-token", token)
+      .status(200)
+      .json({ success: true, message: "Already Verified" });
+  } else if (
+    user.isEmailVerified === true &&
+    user.isContactVerified === false
+  ) {
+    if (user.otpExpiresIn >= Date.now())
+      res.status(200).json({
+        success: true,
+        message: "Already Verified! Verify your Mobile No."
+      });
+    else {
+      await sendOtpToMobile(user);
+      res.status(200).json({
+        success: true,
+        message: "Already Verified! Verify your Mobile No. Now"
+      });
+    }
+  } else if (
+    user.verifyEmail.expiresIn >= Date.now() &&
+    user.verifyEmail.token === token &&
+    user.isContactVerified === true
+  ) {
+    user.isEmailVerified = true;
+    user.verifyEmail.token = undefined;
+    user.verifyEmail.expiresIn = undefined;
+    await user.save();
+    if (!user.qrcode.id) {
+      let user1 = {
+        name: undefined,
+        email: undefined,
+        role: undefined,
+        contact: undefined
+      };
+      user1.name = user.name;
+      user1.email = user.email;
+      user1.role = user.role;
+      user1.contact = user.contact;
+      let JSONobject = JSON.stringify(user1);
+      var opts = {
+        errorCorrectionLevel: 'H',
+        type: 'image/jpeg',
+        quality: 1,
+        margin: 1
+      }
+      qrcode.toDataURL(JSONobject, opts)
+        .then(url => {
+          cloudinary.uploader.upload(url, (result, error) => {
+            if (result) {
+              user.qrcode.id = result.public_id;
+              user.qrcode.url = result.url;
+              user.save();
+            } else if (error) {
+              console.log("QR Code is not Uploaded!");
+            }
+          });
+        })
+        .catch(err => {
+          console.error(err)
+        })
+    }
+    const token = jwt.sign(
+      {
+        type: "user",
+        data: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          contact: user.contact,
+          role: user.role
+        }
+      },
+      process.env.secret,
+      {
+        expiresIn: 604800 // for 1 week time in milliseconds
+      }
+    );
+    res
+      .header("x-auth-token", token)
+      .status(200)
+      .json({
+        success: true,
+        message: "Email Verified! You can login now!",
+        token: token
+      });
+  } else if (
+    user.verifyEmail.expiresIn >= Date.now() &&
+    user.verifyEmail.token === token &&
+    user.isContactVerified === false
+  ) {
+    user.isEmailVerified = true;
+    user.verifyEmail.token = undefined;
+    user.verifyEmail.expiresIn = undefined;
+    await user.save();
+    if (user.otpExpiresIn >= Date.now()) {
+      res.status(200).json({
+        success: true,
+        message: "Email Verified! Verify your Mobile no.!"
+      });
+    } else {
+      await sendOtpToMobile(user);
+      res.status(200).json({
+        success: true,
+        message: "Email Verified! Verify your Mobile no. now!"
+      });
+    }
+  } else {
+    await sendVerificationLink(user.email);
+    res.status(400).json({ message: "Invalid Request or Link Expired!" });
+  }
+} else {
+  res.status(400).json({ message: "No User Found" });
+}
+};
+
+module.exports.verifyContact = async (req, res) => {
+  let { contact } = req.params;
+  let { otp } = req.body;
+  let user = await User.findOne({ contact: contact });
+  if (user) {
+    if (user.isContactVerified === true && user.isEmailVerified === true) {
       if (!user.qrcode.id) {
-        let user1 = {
+        var user1 = {
           name,
           email,
           role,
           contact
         };
-        user1.name = newUser.name;
-        user1.email = newUser.email;
-        user1.role = newUser.role;
-        user1.contact = newUser.contact;
+        user1.name = user.name;
+        user1.email = user.email;
+        user1.role = user.role;
+        user1.contact = user.contact;
         let JSONobject = JSON.stringify(user1);
         var opts = {
           errorCorrectionLevel: 'H',
@@ -321,114 +494,119 @@ module.exports.verifyEmail = async (req, res) => {
       res
         .header("x-auth-token", token)
         .status(200)
-        .json({ success: true, message: "Already Verified" });
+        .json({ success: true, message: "Already Verified!" });
     } else if (
-      user.isEmailVerified === true &&
-      user.isContactVerified === false
+      user.isContactVerified === true &&
+      user.isEmailVerified === false
     ) {
-      if (user.otpExpiresIn >= Date.now())
+      if (user.verifyEmail.expiresIn >= Date.now())
         res.status(200).json({
           success: true,
-          message: "Already Verified! Verify your Mobile No."
+          message: "Already Verified! Verify your email Id."
         });
       else {
-        await sendOtpToMobile(user);
+        await sendVerificationLink(user.email);
         res.status(200).json({
           success: true,
-          message: "Already Verified! Verify your Mobile No. Now"
-        });
-      }
-    } else if (
-      user.verifyEmail.expiresIn >= Date.now() &&
-      user.verifyEmail.token === token &&
-      user.isContactVerified === true
-    ) {
-      user.isEmailVerified = true;
-      user.verifyEmail.token = undefined;
-      user.verifyEmail.expiresIn = undefined;
-      await user.save();
-      if (!user.qrcode.id) {
-        let user1 = {
-          name,
-          email,
-          role,
-          contact
-        };
-        user1.name = newUser.name;
-        user1.email = newUser.email;
-        user1.role = newUser.role;
-        user1.contact = newUser.contact;
-        let JSONobject = JSON.stringify(user1);
-        var opts = {
-          errorCorrectionLevel: 'H',
-          type: 'image/jpeg',
-          quality: 1,
-          margin: 1
-        }
-        qrcode.toDataURL(JSONobject, opts)
-          .then(url => {
-            cloudinary.uploader.upload(url, (result, error) => {
-              if (result) {
-                user.qrcode.id = result.public_id;
-                user.qrcode.url = result.url;
-                user.save();
-              } else if (error) {
-                console.log("QR Code is not Uploaded!");
-              }
-            });
-          })
-          .catch(err => {
-            console.error(err)
-          })
-      }
-      const token = jwt.sign(
-        {
-          type: "user",
-          data: {
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            contact: user.contact,
-            role: user.role
-          }
-        },
-        process.env.secret,
-        {
-          expiresIn: 604800 // for 1 week time in milliseconds
-        }
-      );
-      res
-        .header("x-auth-token", token)
-        .status(200)
-        .json({
-          success: true,
-          message: "Email Verified! You can login now!",
-          token: token
-        });
-    } else if (
-      user.verifyEmail.expiresIn >= Date.now() &&
-      user.verifyEmail.token === token &&
-      user.isContactVerified === false
-    ) {
-      user.isEmailVerified = true;
-      user.verifyEmail.token = undefined;
-      user.verifyEmail.expiresIn = undefined;
-      await user.save();
-      if (user.otpExpiresIn >= Date.now()) {
-        res.status(200).json({
-          success: true,
-          message: "Email Verified! Verify your Mobile no.!"
-        });
-      } else {
-        await sendOtpToMobile(user);
-        res.status(200).json({
-          success: true,
-          message: "Email Verified! Verify your Mobile no. now!"
+          message: "Already Verified! Verify your email Id now."
         });
       }
     } else {
-      await sendVerificationLink(user.email);
-      res.status(400).json({ message: "Invalid Request or Link Expired!" });
+      await sendOtp.verify(contact, otp, async (error, data) => {
+        console.log(data);
+        if (data.type == "success") {
+          if (
+            user.otpExpiresIn >= Date.now() &&
+            user.isEmailVerified === true
+          ) {
+            user.isContactVerified = true;
+            user.otpExpiresIn = undefined;
+            await user.save();
+            if (!user.qrcode.id) {
+              let user1 = {
+                name,
+                email,
+                role,
+                contact
+              };
+              user1.name = user.name;
+              user1.email = user.email;
+              user1.role = user.role;
+              user1.contact = user.contact;
+              let JSONobject = JSON.stringify(user1);
+              var opts = {
+                errorCorrectionLevel: 'H',
+                type: 'image/jpeg',
+                quality: 1,
+                margin: 1
+              }
+              qrcode.toDataURL(JSONobject, opts)
+                .then(url => {
+                  cloudinary.uploader.upload(url, (result, error) => {
+                    if (result) {
+                      user.qrcode.id = result.public_id;
+                      user.qrcode.url = result.url;
+                      user.save();
+                    } else if (error) {
+                      console.log("QR Code is not Uploaded!");
+                    }
+                  });
+                })
+                .catch(err => {
+                  console.error(err)
+                })
+            }
+            const token = jwt.sign(
+              {
+                type: "user",
+                data: {
+                  _id: user._id,
+                  name: user.name,
+                  email: user.email,
+                  contact: user.contact,
+                  role: user.role
+                }
+              },
+              process.env.secret,
+              {
+                expiresIn: 604800 // for 1 week time in milliseconds
+              }
+            );
+            res
+              .header("x-auth-token", token)
+              .status(200)
+              .json({
+                success: true,
+                message: "Contact Verified. You can login now!",
+                token: token
+              });
+          } else if (
+            user.otpExpiresIn >= Date.now() &&
+            user.isEmailVerified === false
+          ) {
+            user.isContactVerified = true;
+            user.otpExpiresIn = undefined;
+            await user.save();
+            if (user.verifyEmail.expiresIn >= Date.now()) {
+              res.status(200).json({
+                success: true,
+                message: "Contact Verified. Need to verify your Email!"
+              });
+            } else {
+              await sendVerificationLink(user.email);
+              res.status(200).json({
+                success: true,
+                message: "Contact Verified. Need to verify your Email now!"
+              });
+            }
+          }
+        }
+        if (data.type == "error") {
+          if (user.otpExpiresIn < Date.now())
+            await sendOtpToMobile(user);
+          res.status(400).json({ message: "Invalid Request or Link Expired!" });
+        }
+      });
     }
   } else {
     res.status(400).json({ message: "No User Found" });
