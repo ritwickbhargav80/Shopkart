@@ -844,3 +844,90 @@ module.exports.sendForgetEmail = async (req, res) => {
     res.status(400).json({ message: "No User Found" });
   }
 };
+
+module.exports.forgetPassword = async (req, res) => {
+  let { email, token } = req.params;
+  let { password, confirmPassword } = req.body;
+  let user = await User.findOne({ email: email });
+  if (user) {
+    if (user.resetPwd.token != token)
+      return res.json({ success: false, message: "You don't have access!" });
+    else if (user.resetPwd.expiresIn < Date.now()) {
+      forgetPasswordEmail(user.email);
+      return res.json({
+        success: false,
+        message: "Time Expired! New Email is sent!"
+      });
+    } else {
+      if (
+        !user.isEmailVerified &&
+        !user.isContactVerified &&
+        user.otpExpiresIn >= Date.now() &&
+        user.verifyEmail.expiresIn >= Date.now()
+      )
+        res.status(400).json({ message: "Get yourself verified!" });
+      else if (
+        !user.isEmailVerified &&
+        !user.isContactVerified &&
+        user.otpExpiresIn < Date.now() &&
+        user.verifyEmail.expiresIn < Date.now()
+      ) {
+        await sendVerificationLink(user.email);
+        await sendOtpToMobile(user);
+        res.status(400).json({
+          message: "Verify your email Id & Contact No now."
+        });
+      } else if (!user.isEmailVerified) {
+        if (user.verifyEmail.expiresIn >= Date.now())
+          res.status(400).json({
+            message: "Verify your email Id first."
+          });
+        else {
+          await sendVerificationLink(user.email);
+          res.status(400).json({
+            message: "Verify your email Id first now."
+          });
+        }
+      } else if (!user.isContactVerified) {
+        if (user.otpExpiresIn >= Date.now())
+          res.status(200).json({
+            message: "Verify your Mobile No. first."
+          });
+        else {
+          await sendOtpToMobile(user);
+          res.status(200).json({
+            message: "Verify your Mobile No. first now."
+          });
+        }
+      } else {
+        if (password === confirmPassword) {
+          if (await bcrypt.compare(password, user.password))
+            return res.status(400).json({
+              message:
+                "Password stored with us and your entered passwords are same!"
+            });
+          const salt = await bcrypt.genSalt(10);
+          password = await bcrypt.hash(password, salt);
+          await User.updateOne(
+            { _id: user.id },
+            {
+              $set: {
+                password: password,
+                resetPwd: { token: undefined, expiresIn: undefined }
+              }
+            }
+          );
+          return res
+            .status(200)
+            .json({ message: "Password Reset Successfully!" });
+        } else {
+          return res
+            .status(400)
+            .json({ message: "Password and Confirm Password doesn't Match!" });
+        }
+      }
+    }
+  } else {
+    return res.status(400).json({ message: "No such User!" });
+  }
+};
