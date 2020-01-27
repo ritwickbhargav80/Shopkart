@@ -157,7 +157,6 @@ module.exports.register = async (req, res) => {
 };
 
 module.exports.login = async (req, res) => {
-  debugger
   let { email, mobile, password } = req.body;
   var user;
   user =
