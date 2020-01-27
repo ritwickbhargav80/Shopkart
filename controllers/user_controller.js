@@ -4,6 +4,7 @@ const qrcode = require("qrcode");
 const cloudinary = require('cloudinary');
 const imgUpload = require('../config/imgUpload');
 const User = require("../models/User");
+const Contact = require("../models/Contacts");
 const SendOtp = require("sendotp");
 const axios = require("axios");
 
@@ -111,7 +112,6 @@ module.exports.register = async (req, res) => {
             console.log(err);
           }
           try {
-            debugger
             await sendOtpToMobile(user);
           } catch (err) {
             console.log(err);
@@ -952,4 +952,12 @@ module.exports.deleteUser = async (req, res) => {
   } else {
     res.status(400).json({ message: "No such User!" });
   }
+};
+
+module.exports.contactAdmin = async (req, res) => {
+  let { name, email, contact, message } = req.body;
+  let newContact = {
+    name, email, contact, message
+  };
+  await Contact.create(newContact);
 };

@@ -14,5 +14,6 @@ router.get("/profile", allAuth, profile);
 router.get("/forgetpassword/:emailormobile", sendForgetEmail);
 router.post("/forgetpassword/:email/:token", forgetPassword);
 router.get("/delete/:id/:email", someAuth, deleteUser);
+router.post("/contact", contactAdmin);
 
 module.exports = router;
