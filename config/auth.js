@@ -70,10 +70,10 @@ module.exports.someAuth = async (req, res, next) => {
     const decodedPayload = jwt.verify(token, process.env.secret);
     req.user = decodedPayload;
     if (req.user.data.role === "admin") {
-      if (user.role != "admin") return next();
+      return next();
     } else if (
-      (req.user.data.role === "owner" && req.params.id === req.user.data._id) ||
-      (req.user.data.role === "tenant" && req.params.id === req.user.data._id)
+      (req.user.data.role === "staff" && req.params.id === req.user.data._id) ||
+      (req.user.data.role === "customer" && req.params.id === req.user.data._id)
     ) {
       return next();
     }
