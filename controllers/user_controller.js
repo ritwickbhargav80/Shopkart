@@ -12,7 +12,8 @@ var temp = 1;
 let {
   messageTemplate,
   email1,
-  email2
+  email2,
+  email3
 } = require("../config/templates");
 
 const sendOtp = new SendOtp(process.env.MSG91_API_KEY, messageTemplate);
@@ -57,6 +58,16 @@ forgetPasswordEmail = async (req, res) => {
     user.resetPwd.expiresIn = Date.now() + 3600000;
     await user.save();
     await email2(user._id, user.name, email, token);
+  } else {
+    return res.status(400).json({ success: false, message: "User not found!" });
+  }
+};
+
+mailToDeletedUsers = async (req, res) => {
+  let email = req;
+  let user = await User.findOne({ email });
+  if (user) {
+    await email3(user.name, email);
   } else {
     return res.status(400).json({ success: false, message: "User not found!" });
   }
@@ -929,5 +940,16 @@ module.exports.forgetPassword = async (req, res) => {
     }
   } else {
     return res.status(400).json({ message: "No such User!" });
+  }
+};
+
+module.exports.deleteUser = async (req, res) => {
+  let user = await User.findById(req.params.id);
+  if (user) {
+    await mailToDeletedUsers(req.params.email);
+    await User.deleteOne({ _id: req.params.id });
+    res.status(200).json({ message: "Deleted Successfully!" });
+  } else {
+    res.status(400).json({ message: "No such User!" });
   }
 };
