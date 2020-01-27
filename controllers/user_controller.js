@@ -960,4 +960,5 @@ module.exports.contactAdmin = async (req, res) => {
     name, email, contact, message
   };
   await Contact.create(newContact);
+  res.status(200).json({ message: "Message Sent!" });
 };
