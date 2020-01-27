@@ -55,7 +55,7 @@ module.exports.email2 = async (_id, name, email, token) => {
       <br>
       <p style="color:#586069!important;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px!important;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">You’re receiving this email because you forget your Shopkart Inc. account's password. If this wasn’t you, please ignore this email.<br><br><strong>Note:</strong> Do not reply to this email. This is auto generated email message. Thank you!</p><br>Thanks,<br>Team <strong>Shopkart Inc.</strong></div>`;
   let mailOptions = {
-    from: `GET MY PG ONLINE <${process.env.email}>`,
+    from: `SHOPKART INC. <${process.env.email}>`,
     to: email,
     subject: "Reset Your Password",
     html: message,
