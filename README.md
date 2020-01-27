@@ -1,6 +1,6 @@
 # Welcome to Shopkart!
 
-[![N|Solid]](https://shopkart-inc.herokuapp.com) **No Calculations, No Queues**
+[![N|Solid](https://image.flaticon.com/icons/svg/66/66580.svg)](https://shopkart-inc.herokuapp.com) **No Calculations, No Queues**
 
 > **Shopkart is simple to use android application that integrates your online and offline shopping experience, making your shopping lifestyle better.**
 
