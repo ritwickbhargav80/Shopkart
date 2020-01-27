@@ -11,5 +11,6 @@ router.get("/verifyEmail/:email/:token", verifyEmail);
 router.post("/verifyMobile/:contact", verifyContact);
 router.get("/retryVerification/:contact", retryContactVerification);
 router.get("/profile", allAuth, profile);
+router.get("/forgetpassword/:emailormobile", sendForgetEmail);
 
 module.exports = router;

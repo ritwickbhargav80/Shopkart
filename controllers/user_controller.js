@@ -12,6 +12,7 @@ var temp = 1;
 let {
   messageTemplate,
   email1,
+  email2
 } = require("../config/templates");
 
 const sendOtp = new SendOtp(process.env.MSG91_API_KEY, messageTemplate);
@@ -36,7 +37,6 @@ sendVerificationLink = async (req, res) => {
 
 sendOtpToMobile = async (req, res) => {
   let user = req;
-  debugger
   temp = 1;
   await sendOtp.send(user.contact, "Shopkart", (err, data) => {
     if (data.type === "error") temp1 = 0;
@@ -47,6 +47,20 @@ sendOtpToMobile = async (req, res) => {
     }
   });
 }
+
+forgetPasswordEmail = async (req, res) => {
+  let email = req;
+  let user = await User.findOne({ email });
+  if (user) {
+    let token = Date.now() + user._id + Math.random(10000000000);
+    user.resetPwd.token = token;
+    user.resetPwd.expiresIn = Date.now() + 3600000;
+    await user.save();
+    await email2(user._id, user.name, email, token);
+  } else {
+    return res.status(400).json({ success: false, message: "User not found!" });
+  }
+};
 
 module.exports.register = async (req, res) => {
   let { firstName, lastName, email, contact, password, confirmPassword, role } = req.body;
@@ -753,4 +767,80 @@ module.exports.profile = async (req, res) => {
     role: role,
     qrcode: qrcode
   });
+};
+
+module.exports.sendForgetEmail = async (req, res) => {
+  let { emailormobile } = req.params;
+  let user =
+    (await User.findOne({ email: emailormobile })) ||
+    (await User.findOne({ contact: emailormobile }));
+  if (user) {
+    if (user.isContactVerified === true && user.isEmailVerified === true) {
+      if (!user.resetPwd.token || user.resetPwd.expiresIn < Date.now()) {
+        forgetPasswordEmail(user.email);
+        res.status(200).json({ message: "Forget Password Email Sent!" });
+      } else res.status(400).json({ message: "Already Availed!" });
+    } else if (
+      user.isContactVerified === true &&
+      user.isEmailVerified === false
+    ) {
+      if (user.verifyEmail.expiresIn >= Date.now())
+        res.status(200).json({
+          message: "Verify your email Id first."
+        });
+      else {
+        await sendVerificationLink(user.email);
+        res.status(200).json({
+          message: "Verify your email Id first now."
+        });
+      }
+    } else if (
+      user.isEmailVerified === true &&
+      user.isContactVerified === false
+    ) {
+      if (user.otpExpiresIn >= Date.now())
+        res.status(200).json({
+          message: "Verify your Mobile No. first."
+        });
+      else {
+        await sendOtpToMobile(user);
+        res.status(200).json({
+          message: "Verify your Mobile No. first now."
+        });
+      }
+    } else {
+      if (
+        user.verifyEmail.expiresIn >= Date.now() &&
+        user.otpExpiresIn >= Date.now()
+      )
+        res.status(200).json({
+          message: "Verify your email Id first & Mobile No."
+        });
+      else if (
+        user.verifyEmail.expiresIn < Date.now() &&
+        user.otpExpiresIn >= Date.now()
+      ) {
+        await sendVerificationLink(user.email);
+        res.status(200).json({
+          message: "Verify your email Id first now & Mobile No."
+        });
+      } else if (
+        user.verifyEmail.expiresIn >= Date.now() &&
+        user.otpExpiresIn < Date.now()
+      ) {
+        await sendOtpToMobile(user);
+        res.status(200).json({
+          message: "Verify your email Id first & Mobile No. now"
+        });
+      } else {
+        await sendVerificationLink(user.email);
+        await sendOtpToMobile(user);
+        res.status(200).json({
+          message: "Verify your email Id first now and Mobile No. now"
+        });
+      }
+    }
+  } else {
+    res.status(400).json({ message: "No User Found" });
+  }
 };
