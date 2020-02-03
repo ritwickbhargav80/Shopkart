@@ -233,11 +233,13 @@ module.exports.login = async (req, res) => {
     }
     if (!user.qrcode.id) {
       let user1 = {
+        _id: undefined,
         name: undefined,
         email: undefined,
         role: undefined,
         contact: undefined
       };
+      user1._id = user._id;
       user1.name = user.name;
       user1.email = user.email;
       user1.role = user.role;
@@ -296,11 +298,13 @@ module.exports.verifyEmail = async (req, res) => {
     if (user.isEmailVerified === true && user.isContactVerified === true) {
       if (!user.qrcode.id) {
         let user1 = {
+          _id: undefined,
           name: undefined,
           email: undefined,
           role: undefined,
           contact: undefined
         };
+        user1._id = user._id;
         user1.name = user.name;
         user1.email = user.email;
         user1.role = user.role;
@@ -375,11 +379,13 @@ module.exports.verifyEmail = async (req, res) => {
       await user.save();
       if (!user.qrcode.id) {
         let user1 = {
+          _id: undefined,
           name: undefined,
           email: undefined,
           role: undefined,
           contact: undefined
         };
+        user1._id = user._id;
         user1.name = user.name;
         user1.email = user.email;
         user1.role = user.role;
@@ -469,11 +475,13 @@ module.exports.verifyContact = async (req, res) => {
     if (user.isContactVerified === true && user.isEmailVerified === true) {
       if (!user.qrcode.id) {
         var user1 = {
+          _id,
           name,
           email,
           role,
           contact
         };
+        user1._id = user._id;
         user1.name = user.name;
         user1.email = user.email;
         user1.role = user.role;
@@ -550,11 +558,13 @@ module.exports.verifyContact = async (req, res) => {
             await user.save();
             if (!user.qrcode.id) {
               let user1 = {
-                name,
-                email,
-                role,
-                contact
+                id: undefined,
+                name: undefined,
+                email: undefined,
+                role: undefined,
+                contact: undefined
               };
+              user1.id = user.id;
               user1.name = user.name;
               user1.email = user.email;
               user1.role = user.role;
@@ -646,11 +656,13 @@ module.exports.retryContactVerification = async (req, res) => {
     if (user.isContactVerified === true && user.isEmailVerified === true) {
       if (!user.qrcode.id) {
         let user1 = {
-          name,
-          email,
-          role,
-          contact
+          id: undefined,
+          name: undefined,
+          email: undefined,
+          role: undefined,
+          contact: undefined
         };
+        user1.id = user._id;
         user1.name = user.name;
         user1.email = user.email;
         user1.role = user.role;
@@ -766,7 +778,7 @@ module.exports.profile = async (req, res) => {
   email = user.email;
   contact = user.contact;
   role = user.role;
-  qrcode = user.qrcode.url;
+  qr = user.qrcode.url;
   return res.status(200).json({
     _id: id,
     isEmailVerified: isEmailVerified,
@@ -775,7 +787,7 @@ module.exports.profile = async (req, res) => {
     email: email,
     contact: contact,
     role: role,
-    qrcode: qrcode
+    qrcode: qr
   });
 };
 

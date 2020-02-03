@@ -13,14 +13,20 @@ const ShopSchema = mongoose.Schema({
     type: String,
     required: true
   },
+  isContactVerified: {
+    type: Boolean,
+    default: false
+  },
+  otpExpiresIn: {
+    type: Date
+  },
   address: {
     line1: {
       type: String,
       required: true
     },
     line2: {
-      type: String,
-      required: true
+      type: String
     },
     city: {
       type: String,
