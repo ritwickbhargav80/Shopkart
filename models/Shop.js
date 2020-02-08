@@ -40,6 +40,10 @@ const ShopSchema = mongoose.Schema({
       type: String,
       required: true
     }
+  },
+  admin: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
   }
 });
 

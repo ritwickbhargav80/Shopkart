@@ -4,9 +4,11 @@ const Shop = require("../models/Shop");
 const User = require("../models/User");
 const SendOtp = require("sendotp");
 
-let { messageTemplate, email4 } = require("../config/templates");
+let { messageTemplate, email4, email5 } = require("../config/templates");
 
 const sendOtp = new SendOtp(process.env.MSG91_API_KEY, messageTemplate);
+
+let temp1;
 
 sendOtpToMobile = async (req, res) => {
   let shop = req;
@@ -30,7 +32,17 @@ sendShopAddedEmail = async (req, res) => {
   }
 };
 
+sendShopAddedEmail1 = async (req, res) => {
+  let user = await User.findOne({ email: req.email });
+  if (user) {
+    await email5(user.name, req.email);
+  } else {
+    return res.status(400).json({ success: false, message: "User not found!" });
+  }
+};
+
 module.exports.register = async (req, res) => {
+  debugger
   const token = req.header("x-auth-token");
   const decodedPayload = jwt.verify(token, process.env.SECRET);
   req.user = decodedPayload;
@@ -60,20 +72,27 @@ module.exports.register = async (req, res) => {
           city,
           state,
           pincode
-        }
+        },
+        admin: req.user.data._id
       };
       shop = await Shop.create(newShop);
       temp1 = 1;
       try {
         let here = { email: req.user.data.email, contact: shop.contact };
-        await sendShopAddedEmail(here);
+        if (shop.contact != req.user.data.contact)
+          await sendShopAddedEmail(here);
+        else
+          await sendShopAddedEmail1(here);
       } catch (err) {
         console.log(err);
       }
-      try {
-        await sendOtpToMobile(shop);
-      } catch (err) {
-        console.log(err);
+      if (shop.contact != req.user.data.contact) {
+        try {
+          await sendOtpToMobile(shop.contact);
+        } catch (err) {
+          temp1 = 0;
+          console.log(err);
+        }
       }
       if (temp1 === 0) {
         return res.status(400).json({
@@ -83,11 +102,18 @@ module.exports.register = async (req, res) => {
         });
       }
       else {
-        res.status(200).json({
-          success: true,
-          message:
-            "Registeration Successful! Verify Your Mobile Number of Shop!"
-        });
+        if (shop.contact != req.user.data.contact)
+          res.status(200).json({
+            success: true,
+            message:
+              "Registeration Successful! Verify Mobile Number of Your Shop!"
+          });
+        else
+          res.status(200).json({
+            success: true,
+            message:
+              "Registeration Successful!"
+          });
       }
     }
   }

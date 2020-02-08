@@ -106,9 +106,37 @@ module.exports.email3 = async (name, email) => {
 
 module.exports.email4 = async (name, email, contact) => {
   const message = `<center style="min-width:580px;width:100%">
-    <div style="margin-bottom:30px;margin-top:20px;text-align:center!important" align="center !important"><img src="cid:unique" width="500" height="50" style="clear:both;display:block;float:none;height:100px;margin:0 auto;max-height:100px;max-width:100px;outline:none;text-decoration:none;width:500px" align="none" class="CToWUd"></div></center><div style="box-sizing:border-box;display:block;margin:0 auto;max-width:580px"><h1 style="color:#586069;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:16px;font-weight:250!important;line-height:1.25;margin:0 0 30px;padding:0;text-align:left;word-break:normal">You, <strong style="color:#24292e!important">${name}</strong> has just added a new shop with us! To verify your contact with us at <strong>Shopkart Inc.</strong> using your email address: <strong style="color:#24292e!important">${email}</strong> then click the button below.<br><br><br><a style="background:#0366d6;border-radius:5px;border:1px solid #0366d6;box-sizing:border-box;color:#ffffff;display:inline-block;font-size:14px;font-weight:bold;margin:0;padding:10px 20px;text-decoration:none" href='https://shopkart-inc.herokuapp.com/api/shop/verifyMobile/${contact}'>Verify Your Mobile Number</a><br><br>
+    <div style="margin-bottom:30px;margin-top:20px;text-align:center!important" align="center !important"><img src="cid:unique" width="500" height="50" style="clear:both;display:block;float:none;height:100px;margin:0 auto;max-height:100px;max-width:100px;outline:none;text-decoration:none;width:500px" align="none" class="CToWUd"></div></center><div style="box-sizing:border-box;display:block;margin:0 auto;max-width:580px"><h1 style="color:#586069;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:16px;font-weight:250!important;line-height:1.25;margin:0 0 30px;padding:0;text-align:left;word-break:normal">Congratulations, <strong style="color:#24292e!important">${name}</strong>. You have just added a new shop with us! To verify your contact with us at <strong>Shopkart Inc.</strong> using your email address: <strong style="color:#24292e!important">${email}</strong> then click the button below.<br><br><br><a style="background:#0366d6;border-radius:5px;border:1px solid #0366d6;box-sizing:border-box;color:#ffffff;display:inline-block;font-size:14px;font-weight:bold;margin:0;padding:10px 20px;text-decoration:none" href='https://shopkart-inc.herokuapp.com/api/shop/verifyMobile/${contact}'>Verify Your Mobile Number</a><br><br>
     <br>
-      <p style="color:#586069!important;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px!important;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">Button not working? Paste the following link into your browser: https://shopkart-inc.herokuapp.com/api/shop/verifyMobile/${contact}. You’re receiving this email because your email ID was registered with us and you have registered a shop with us.<br><br><strong>Note:</strong> Do not reply to this email. This is auto generated email message. Thank you!</p><br>Thanks,<br>Team <strong>Shopkart Inc.</strong></div>`;
+      <p style="color:#586069!important;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px!important;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">Button not working? Paste the following link into your browser: https://shopkart-inc.herokuapp.com/api/shop/verifyMobile/${contact}. You’re receiving this email because your email ID was registered with us and you have just registered a shop with us.<br><br><strong>Note:</strong> Do not reply to this email. This is auto generated email message. Thank you!</p><br>Thanks,<br>Team <strong>Shopkart Inc.</strong></div>`;
+  let mailOptions = {
+    from: `SHOPKART INC. <${process.env.email}>`,
+    to: email,
+    subject: "Your just have registered a shop with us!",
+    html: message,
+    attachments: [
+      {
+        filename: "Shopkart.png",
+        path: __dirname + "/assets/Shopkart.png",
+        cid: "unique"
+      }
+    ]
+  };
+
+  await transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log(error);
+      return 0;
+    }
+    console.log("Message sent: %s", info.messageId);
+  });
+};
+
+module.exports.email5 = async (name, email, contact) => {
+  const message = `<center style="min-width:580px;width:100%">
+    <div style="margin-bottom:30px;margin-top:20px;text-align:center!important" align="center !important"><img src="cid:unique" width="500" height="50" style="clear:both;display:block;float:none;height:100px;margin:0 auto;max-height:100px;max-width:100px;outline:none;text-decoration:none;width:500px" align="none" class="CToWUd"></div></center><div style="box-sizing:border-box;display:block;margin:0 auto;max-width:580px"><h1 style="color:#586069;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:16px;font-weight:250!important;line-height:1.25;margin:0 0 30px;padding:0;text-align:left;word-break:normal">Congratulations, <strong style="color:#24292e!important">${name}</strong>. You have just added a new shop with us! Now you can use our services to track your stock and orders <strong>@Shopkart-Inc.</strong> using your email address: <strong style="color:#24292e!important">${email}</strong>. Just click the button below to use our services.<br><br><br><a style="background:#0366d6;border-radius:5px;border:1px solid #0366d6;box-sizing:border-box;color:#ffffff;display:inline-block;font-size:14px;font-weight:bold;margin:0;padding:10px 20px;text-decoration:none" href='https://shopkart-inc.herokuapp.com'>Shopkart Inc.</a><br><br>
+    <br>
+      <p style="color:#586069!important;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px!important;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">Button not working? Paste the following link into your browser: https://shopkart-inc.herokuapp.com. You’re receiving this email because your email ID was registered with us and you have just registered a shop with us.<br><br><strong>Note:</strong> Do not reply to this email. This is auto generated email message. Thank you!</p><br>Thanks,<br>Team <strong>Shopkart Inc.</strong></div>`;
   let mailOptions = {
     from: `SHOPKART INC. <${process.env.email}>`,
     to: email,
