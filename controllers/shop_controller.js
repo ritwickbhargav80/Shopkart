@@ -42,7 +42,6 @@ sendShopAddedEmail1 = async (req, res) => {
 };
 
 module.exports.register = async (req, res) => {
-  debugger
   const token = req.header("x-auth-token");
   const decodedPayload = jwt.verify(token, process.env.SECRET);
   req.user = decodedPayload;
@@ -55,7 +54,6 @@ module.exports.register = async (req, res) => {
     return res.status(400).json({ message: "All fields are mandatory!" });
   let pincodeRegex = /^[1-9][0-9]{5}$/;
   if (pincodeRegex.test(pincode)) {
-    debugger
     let shop = await Shop.findOne({ shopName: shopName, contact: contact, pincode: pincode });
     if (shop) {
       return res

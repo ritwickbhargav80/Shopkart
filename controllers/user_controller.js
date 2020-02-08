@@ -94,7 +94,6 @@ module.exports.register = async (req, res) => {
             .json({ message: "Email or Contact already registered with us!" });
         } else {
           let newUser;
-          debugger
           if (referral_code && role == "customer") {
             temp_user = await User.findOne({ referral_code });
             temp_user.bonus = 100;
