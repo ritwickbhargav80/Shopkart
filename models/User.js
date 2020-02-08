@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
-const uniqueValidator = require("mongoose-unique-validator");
 
 const UserSchema = mongoose.Schema({
   name: {
@@ -55,10 +54,15 @@ const UserSchema = mongoose.Schema({
   qrcode: {
     id: String,
     url: String
+  },
+  referral_code: {
+    type: String
+  },
+  bonus: {
+    type: Number,
+    default: 0
   }
 });
-
-UserSchema.plugin(uniqueValidator);
 
 UserSchema.methods.generateAuthToken = () => {
   const token = jwt.sign(

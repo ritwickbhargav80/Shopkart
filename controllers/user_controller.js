@@ -2,13 +2,12 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const qrcode = require("qrcode");
 const cloudinary = require('cloudinary');
+const SendOtp = require("sendotp");
+const axios = require("axios");
+const uuidv1 = require('uuid/v1');
 const imgUpload = require('../config/imgUpload');
 const User = require("../models/User");
 const Contact = require("../models/Contacts");
-const SendOtp = require("sendotp");
-const axios = require("axios");
-
-var temp = 1;
 
 let {
   messageTemplate,
@@ -75,14 +74,14 @@ mailToDeletedUsers = async (req, res) => {
 };
 
 module.exports.register = async (req, res) => {
-  let { firstName, lastName, email, contact, password, confirmPassword, role } = req.body;
+  let { firstName, lastName, email, contact, password, confirmPassword, referral_code, role } = req.body;
   var name;
   if (lastName === "") name = firstName;
   else name = firstName + " " + lastName;
   if (!name || !email || !contact || !password || !role)
     return res.status(400).json({ message: "All fields are mandatory!" });
   let emailRegex = /^\S+@\S+\.\S+/,
-    phoneRegex = /^([0|\+[0-9]{1,5})?([7-9][0-9]{9})$/,
+    phoneRegex = /^([0|\+[0-9]{1,5})?([6-9][0-9]{9})$/,
     passwordRegex = /^[\S]{8,}/;
   if (emailRegex.test(email)) {
     if (passwordRegex.test(String(password))) {
@@ -94,13 +93,30 @@ module.exports.register = async (req, res) => {
             .status(400)
             .json({ message: "Email or Contact already registered with us!" });
         } else {
-          let newUser = {
-            name,
-            email,
-            password,
-            role,
-            contact
-          };
+          let newUser;
+          debugger
+          if (referral_code && role == "customer") {
+            temp_user = await User.findOne({ referral_code });
+            temp_user.bonus = 100;
+            temp_user.save();
+            newUser = {
+              name,
+              email,
+              password,
+              role,
+              bonus: 50,
+              contact
+            };
+          }
+          else {
+            newUser = {
+              name,
+              email,
+              password,
+              role,
+              contact
+            };
+          }
           const salt = await bcrypt.genSalt(10);
           newUser.password = await bcrypt.hash(newUser.password, salt);
           user = await User.create(newUser);
@@ -373,6 +389,8 @@ module.exports.verifyEmail = async (req, res) => {
       user.verifyEmail.token === token &&
       user.isContactVerified === true
     ) {
+      if (user.role == "customer")
+        user.referral_code = uuidv1();
       user.isEmailVerified = true;
       user.verifyEmail.token = undefined;
       user.verifyEmail.expiresIn = undefined;
@@ -474,12 +492,12 @@ module.exports.verifyContact = async (req, res) => {
   if (user) {
     if (user.isContactVerified === true && user.isEmailVerified === true) {
       if (!user.qrcode.id) {
-        var user1 = {
-          _id,
-          name,
-          email,
-          role,
-          contact
+        let user1 = {
+          _id: undefined,
+          name: undefined,
+          email: undefined,
+          role: undefined,
+          contact: undefined
         };
         user1._id = user._id;
         user1.name = user.name;
@@ -553,18 +571,20 @@ module.exports.verifyContact = async (req, res) => {
             user.otpExpiresIn >= Date.now() &&
             user.isEmailVerified === true
           ) {
+            if (user.role == "customer")
+              user.referral_code = uuidv1();
             user.isContactVerified = true;
             user.otpExpiresIn = undefined;
             await user.save();
             if (!user.qrcode.id) {
               let user1 = {
-                id: undefined,
+                _id: undefined,
                 name: undefined,
                 email: undefined,
                 role: undefined,
                 contact: undefined
               };
-              user1.id = user.id;
+              user1._id = user._id;
               user1.name = user.name;
               user1.email = user.email;
               user1.role = user.role;
@@ -656,13 +676,13 @@ module.exports.retryContactVerification = async (req, res) => {
     if (user.isContactVerified === true && user.isEmailVerified === true) {
       if (!user.qrcode.id) {
         let user1 = {
-          id: undefined,
+          _id: undefined,
           name: undefined,
           email: undefined,
           role: undefined,
           contact: undefined
         };
-        user1.id = user._id;
+        user1._id = user._id;
         user1.name = user.name;
         user1.email = user.email;
         user1.role = user.role;
