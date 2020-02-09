@@ -1,8 +1,9 @@
 const jwt = require("jsonwebtoken");
+const SendOtp = require("sendotp");
+const axios = require("axios");
 require("dotenv").config();
 const Shop = require("../models/Shop");
 const User = require("../models/User");
-const SendOtp = require("sendotp");
 
 let { messageTemplate, email4, email5 } = require("../config/templates");
 
@@ -54,7 +55,8 @@ module.exports.register = async (req, res) => {
     return res.status(400).json({ message: "All fields are mandatory!" });
   let pincodeRegex = /^[1-9][0-9]{5}$/;
   if (pincodeRegex.test(pincode)) {
-    let shop = await Shop.findOne({ shopName: shopName, contact: contact, pincode: pincode });
+    debugger
+    let shop = await Shop.findOne({ shopName, contact, "address.pincode": pincode });
     if (shop) {
       return res
         .status(400)
@@ -117,5 +119,76 @@ module.exports.register = async (req, res) => {
   }
   else {
     return res.status(400).json({ message: "Pincode is incorrect!" })
+  }
+};
+
+module.exports.verifyContact = async (req, res) => {
+  let { contact } = req.params;
+  let { otp } = req.body;
+  let shop = await Shop.findOne({ contact: contact });
+  if (shop) {
+    if (shop.isContactVerified === true) {
+      res
+        .status(200)
+        .json({ success: true, message: "Already Verified!" });
+    } else {
+      await sendOtp.verify(contact, otp, async (error, data) => {
+        console.log(data);
+        if (data.type == "success") {
+          if (shop.otpExpiresIn >= Date.now()) {
+            res
+              .status(200)
+              .json({
+                success: true,
+                message: "Contact Verified!"
+              });
+          }
+        }
+        if (data.type == "error") {
+          if (shop.otpExpiresIn < Date.now())
+            await sendOtpToMobile(shop);
+          res.status(400).json({ message: "Invalid Request or Link Expired!" });
+        }
+      });
+    }
+  } else {
+    res.status(400).json({ message: "No Shop Found" });
+  }
+};
+
+module.exports.retryContactVerification = async (req, res) => {
+  let { contact } = req.params;
+  let shop = await Shop.findOne({ contact: contact });
+  if (shop) {
+    if (user.isContactVerified === true) {
+      res
+        .status(200)
+        .json({
+          success: true,
+          message: "Already Verified!"
+        });
+    } else {
+      let response = await axios.post(
+        `${process.env.MSG91_RESENDOTP_URL}${contact}&authkey=${process.env.MSG91_API_KEY}`
+      );
+      console.log(response);
+      if (
+        response.data.type === "error" &&
+        response.data.message === "No OTP request found to retryotp"
+      ) {
+        res
+          .status(400)
+          .json({ message: "Can't retry OTP without trying Verification" });
+      } else if (response.data.type === "error") {
+        res.status(400).json({ message: "OTP not sent" });
+      } else {
+        res.status(200).json({
+          success: true,
+          message: "Otp Send via call."
+        });
+      }
+    }
+  } else {
+    res.status(400).json({ message: "No User Found" });
   }
 };

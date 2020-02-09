@@ -61,6 +61,24 @@ const UserSchema = mongoose.Schema({
   bonus: {
     type: Number,
     default: 0
+  },
+  current_session: {
+    inShop: {
+      type: Boolean,
+      default: false
+    },
+    currentShop: {
+      type: String,
+      default: "none"
+    },
+    cart: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Products" }],
+      default: []
+    }
+  },
+  previousShopVisits: {
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Shop" }],
+    default: []
   }
 });
 
