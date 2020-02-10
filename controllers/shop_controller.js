@@ -57,7 +57,7 @@ module.exports.register = async (req, res) => {
     return res.status(400).json({ message: "All fields are mandatory!" });
   let pincodeRegex = /^[1-9][0-9]{5}$/;
   if (pincodeRegex.test(pincode)) {
-    debugger
+
     let shop = await Shop.findOne({ shopName, contact, "address.pincode": pincode });
     if (shop) {
       return res
@@ -81,8 +81,7 @@ module.exports.register = async (req, res) => {
       temp1 = 1;
       try {
         let here = { email: req.user.data.email, contact: shop.contact };
-        if (shop.contact != req.user.data.contact)
-        {
+        if (shop.contact != req.user.data.contact) {
           try {
             await sendOtpToMobile(shop.contact);
             await sendShopAddedEmail(here);
@@ -197,32 +196,29 @@ module.exports.retryContactVerification = async (req, res) => {
 
 //check
 module.exports.addProducts = async (req, res) => {
-  let  { name, category, weight, size, expirationDate, expireBefore, price, discount, manufacturer, quantity } = req.body;
-  if(expirationDate)
-  {
-    if(expireBefore)
+  let { name, category, weight, size, expirationDate, expireBefore, price, discount, manufacturer, quantity } = req.body;
+  if (expirationDate) {
+    if (expireBefore)
       return res.status(400).json({ message: "Can't have both expiration date and expire before!" });
   }
-  if(weight)
-  {
-    if(size)
+  if (weight) {
+    if (size)
       return res.status(400).json({ message: "Can't have both expiration weight and size!" });
   }
   if (!name || !category || !price || !discount || !manufacturer || !quantity)
     return res.status(400).json({ message: "All fields are mandatory!" });
-    let product;
-    if(weight)
-    {
-      if(expirationDate)
-        product = await Product.findOne({ name, category, "details.weight": weight, expirationDate, manufacturer, whichShop });
-      else
-        product = await Product.findOne({ name, category, "details.weight": weight, expireBefore, manufacturer, whichShop });
-    }
+  let product;
+  if (weight) {
+    if (expirationDate)
+      product = await Product.findOne({ name, category, "details.weight": weight, expirationDate, manufacturer, whichShop });
     else
-      product = await Product.findOne({ name, category, "details.size": size, manufacturer, whichShop });
-    if(product)
-      res.status(400).json({ message: "Product is already added!" });
-    //need to code further
+      product = await Product.findOne({ name, category, "details.weight": weight, expireBefore, manufacturer, whichShop });
+  }
+  else
+    product = await Product.findOne({ name, category, "details.size": size, manufacturer, whichShop });
+  if (product)
+    res.status(400).json({ message: "Product is already added!" });
+  //need to code further
 }
 
 //check
@@ -234,15 +230,13 @@ module.exports.readQrData = async (req, res) => {
   user.current_session.inShop = true;
   user.current_session.currentShop = shop.name;
   let temp = 0;
-  for(var i=0; i<user.previousShopVisits.length; i++)
-  {
-    if(user.previousShopVisits[i] == id)
-    {
+  for (var i = 0; i < user.previousShopVisits.length; i++) {
+    if (user.previousShopVisits[i] == id) {
       temp = 1;
       break;
     }
   }
-  if(temp == 0)
+  if (temp == 0)
     user.previousShopVisits.push(id);
   user.save();
 }

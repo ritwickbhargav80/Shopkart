@@ -96,7 +96,7 @@ generatePassword = (req, res) => {
 }
 
 module.exports.register = async (req, res) => {
-  debugger
+
   let { firstName, lastName, email, contact, password, confirmPassword, referral_code, role } = req.body;
   if (role == "staff")
     return res.status(400).json({ message: "You can't register as a staff! Ask your manager to get you registered!" });
@@ -199,7 +199,7 @@ module.exports.register = async (req, res) => {
 
 //check
 module.exports.addStaff = async (req, res) => {
-  debugger
+
   let { firstName, lastName, email, contact } = req.body;
   let role = "staff";
   let password = generatePassword();
@@ -291,7 +291,7 @@ module.exports.addStaff = async (req, res) => {
 };
 
 module.exports.login = async (req, res) => {
-  debugger
+
   let { email, mobile, password } = req.body;
   var user;
   user =
@@ -427,7 +427,7 @@ module.exports.login = async (req, res) => {
 };
 
 module.exports.verifyEmail = async (req, res) => {
-  debugger
+
   let { email, token } = req.params;
   let user = await User.findOne({ email: email });
   if (user) {
@@ -606,7 +606,7 @@ module.exports.verifyEmail = async (req, res) => {
 };
 
 module.exports.verifyContact = async (req, res) => {
-  debugger
+
   let { contact } = req.params;
   let { otp } = req.body;
   let user = await User.findOne({ contact: contact });
@@ -791,7 +791,7 @@ module.exports.verifyContact = async (req, res) => {
 };
 
 module.exports.retryContactVerification = async (req, res) => {
-  debugger
+
   let { contact } = req.params;
   let user = await User.findOne({ contact: contact });
   if (user) {
@@ -912,7 +912,7 @@ module.exports.retryContactVerification = async (req, res) => {
 };
 
 module.exports.profile = async (req, res) => {
-  debugger
+
   let user = await User.findById(req.user.data._id);
   id = user._id;
   isEmailVerified = user.isEmailVerified;
@@ -935,7 +935,7 @@ module.exports.profile = async (req, res) => {
 };
 
 module.exports.sendForgetEmail = async (req, res) => {
-  debugger
+
   let { emailormobile } = req.params;
   let user =
     (await User.findOne({ email: emailormobile })) ||
@@ -1012,7 +1012,7 @@ module.exports.sendForgetEmail = async (req, res) => {
 };
 
 module.exports.forgetPassword = async (req, res) => {
-  debugger
+
   let { email, token } = req.params;
   let { password, confirmPassword } = req.body;
   let user = await User.findOne({ email: email });
@@ -1100,7 +1100,7 @@ module.exports.forgetPassword = async (req, res) => {
 };
 
 module.exports.deleteUser = async (req, res) => {
-  debugger
+
   let user = await User.findById(req.params.id);
   if (user) {
     await mailToDeletedUsers(req.params.email);
@@ -1112,7 +1112,7 @@ module.exports.deleteUser = async (req, res) => {
 };
 
 module.exports.contactAdmin = async (req, res) => {
-  debugger
+
   let { name, email, contact, message } = req.body;
   if (req.params.emailid) email = req.params.emailid;
   let newContact = {
