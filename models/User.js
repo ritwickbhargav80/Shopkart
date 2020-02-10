@@ -79,6 +79,14 @@ const UserSchema = mongoose.Schema({
   previousShopVisits: {
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Shop" }],
     default: []
+  },
+  admin: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
+  },
+  shop: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Shop"
   }
 });
 

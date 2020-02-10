@@ -13,7 +13,8 @@ let {
   messageTemplate,
   email1,
   email2,
-  email3
+  email3,
+  email6
 } = require("../config/templates");
 
 const sendOtp = new SendOtp(process.env.MSG91_API_KEY, messageTemplate);
@@ -49,6 +50,17 @@ sendOtpToMobile = async (req, res) => {
   });
 }
 
+sendWelcomeEmail = async (req, res) => {
+  let { email, password } = req;
+  let user = await User.findOne({ email });
+  if (user) {
+    await email6(user._id, user.name, email, user.contact, password, user.verifyEmail.token);
+  }
+  else {
+    return res.status(400).json({ success: false, message: "User not found!" });
+  }
+}
+
 forgetPasswordEmail = async (req, res) => {
   let email = req;
   let user = await User.findOne({ email });
@@ -73,8 +85,21 @@ mailToDeletedUsers = async (req, res) => {
   }
 };
 
+generatePassword = (req, res) => {
+  var length = 8,
+    charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+    retVal = "";
+  for (var i = 0, n = charset.length; i < length; ++i) {
+    retVal += charset.charAt(Math.floor(Math.random() * n));
+  }
+  return retVal;
+}
+
 module.exports.register = async (req, res) => {
+  debugger
   let { firstName, lastName, email, contact, password, confirmPassword, referral_code, role } = req.body;
+  if (role == "staff")
+    return res.status(400).json({ message: "You can't register as a staff! Ask your manager to get you registered!" });
   var name;
   if (lastName === "") name = firstName;
   else name = firstName + " " + lastName;
@@ -171,7 +196,102 @@ module.exports.register = async (req, res) => {
   }
 };
 
+
+//check
+module.exports.addStaff = async (req, res) => {
+  debugger
+  let { firstName, lastName, email, contact } = req.body;
+  let role = "staff";
+  let password = generatePassword();
+  var name;
+  if (lastName === "") name = firstName;
+  else name = firstName + " " + lastName;
+  if (!name || !email || !contact || !password || !role)
+    return res.status(400).json({ message: "All fields are mandatory!" });
+  let emailRegex = /^\S+@\S+\.\S+/,
+    phoneRegex = /^([0|\+[0-9]{1,5})?([6-9][0-9]{9})$/,
+    passwordRegex = /^[\S]{8,}/;
+  if (emailRegex.test(email)) {
+    if (passwordRegex.test(String(password))) {
+      if (phoneRegex.test(Number(contact))) {
+        let user =
+          (await User.findOne({ email })) || (await User.findOne({ contact }));
+        if (user) {
+          return res
+            .status(400)
+            .json({ message: "Email or Contact already registered with us!" });
+        } else {
+          const token = req.header("x-auth-token");
+          const decodedPayload = jwt.verify(token, process.env.SECRET);
+          req.user = decodedPayload;
+          let newUser;
+          newUser = {
+            name,
+            email,
+            password,
+            role,
+            admin: req.user.data._id,
+            contact
+          };
+          const salt = await bcrypt.genSalt(10);
+          newUser.password = await bcrypt.hash(newUser.password, salt);
+          user = await User.create(newUser);
+          (temp = 1), (temp1 = 1);
+          try {
+            await sendVerificationLink(newUser.email);
+          } catch (err) {
+            temp = 0;
+            console.log(err);
+          }
+          try {
+            await sendOtpToMobile(user);
+          } catch (err) {
+            temp1 = 0;
+            console.log(err);
+          }
+          if (temp === 0) {
+            return res.status(400).json({
+              success: false,
+              message: "Registeration Successful!",
+              error: "Verification Email cannot be sent. Login to recieve!"
+            });
+          } else if (temp1 === 0) {
+            return res.status(400).json({
+              success: false,
+              message: "Registeration Successful!",
+              error: "OTP cannot be sent. Login to recieve!"
+            });
+          } else if (temp === 0 && temp1 === 0) {
+            return res.status(400).json({
+              success: false,
+              message: "Registeration Successful!",
+              error:
+                "Verification Email & OTP cannot be sent. Login to recieve!"
+            });
+          } else {
+            await sendWelcomeEmail({ email, password });
+            res.status(200).json({
+              success: true,
+              message:
+                "Staff Added Successfully!"
+            });
+          }
+        }
+      } else {
+        return res.status(400).json({ message: "Contact number not valid!" });
+      }
+    } else {
+      return res
+        .status(400)
+        .json({ message: "Password must be atleast 8 characters long!" });
+    }
+  } else {
+    return res.status(400).json({ message: "EmailID is not valid!" });
+  }
+};
+
 module.exports.login = async (req, res) => {
+  debugger
   let { email, mobile, password } = req.body;
   var user;
   user =
@@ -307,6 +427,7 @@ module.exports.login = async (req, res) => {
 };
 
 module.exports.verifyEmail = async (req, res) => {
+  debugger
   let { email, token } = req.params;
   let user = await User.findOne({ email: email });
   if (user) {
@@ -485,6 +606,7 @@ module.exports.verifyEmail = async (req, res) => {
 };
 
 module.exports.verifyContact = async (req, res) => {
+  debugger
   let { contact } = req.params;
   let { otp } = req.body;
   let user = await User.findOne({ contact: contact });
@@ -669,6 +791,7 @@ module.exports.verifyContact = async (req, res) => {
 };
 
 module.exports.retryContactVerification = async (req, res) => {
+  debugger
   let { contact } = req.params;
   let user = await User.findOne({ contact: contact });
   if (user) {
@@ -789,6 +912,7 @@ module.exports.retryContactVerification = async (req, res) => {
 };
 
 module.exports.profile = async (req, res) => {
+  debugger
   let user = await User.findById(req.user.data._id);
   id = user._id;
   isEmailVerified = user.isEmailVerified;
@@ -811,6 +935,7 @@ module.exports.profile = async (req, res) => {
 };
 
 module.exports.sendForgetEmail = async (req, res) => {
+  debugger
   let { emailormobile } = req.params;
   let user =
     (await User.findOne({ email: emailormobile })) ||
@@ -887,6 +1012,7 @@ module.exports.sendForgetEmail = async (req, res) => {
 };
 
 module.exports.forgetPassword = async (req, res) => {
+  debugger
   let { email, token } = req.params;
   let { password, confirmPassword } = req.body;
   let user = await User.findOne({ email: email });
@@ -974,6 +1100,7 @@ module.exports.forgetPassword = async (req, res) => {
 };
 
 module.exports.deleteUser = async (req, res) => {
+  debugger
   let user = await User.findById(req.params.id);
   if (user) {
     await mailToDeletedUsers(req.params.email);
@@ -985,6 +1112,7 @@ module.exports.deleteUser = async (req, res) => {
 };
 
 module.exports.contactAdmin = async (req, res) => {
+  debugger
   let { name, email, contact, message } = req.body;
   if (req.params.emailid) email = req.params.emailid;
   let newContact = {

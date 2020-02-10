@@ -4,6 +4,7 @@ const axios = require("axios");
 require("dotenv").config();
 const Shop = require("../models/Shop");
 const User = require("../models/User");
+const Product = require("../models/Products");
 
 let { messageTemplate, email4, email5 } = require("../config/templates");
 
@@ -42,6 +43,7 @@ sendShopAddedEmail1 = async (req, res) => {
   }
 };
 
+//check
 module.exports.register = async (req, res) => {
   const token = req.header("x-auth-token");
   const decodedPayload = jwt.verify(token, process.env.SECRET);
@@ -72,33 +74,33 @@ module.exports.register = async (req, res) => {
           city,
           state,
           pincode
-        },
-        admin: req.user.data._id
+        }
       };
       shop = await Shop.create(newShop);
+      //if _id is in shop then you need to store in user
       temp1 = 1;
       try {
         let here = { email: req.user.data.email, contact: shop.contact };
         if (shop.contact != req.user.data.contact)
-          await sendShopAddedEmail(here);
+        {
+          try {
+            await sendOtpToMobile(shop.contact);
+            await sendShopAddedEmail(here);
+          } catch (err) {
+            temp1 = 0;
+            console.log(err);
+          }
+        }
         else
           await sendShopAddedEmail1(here);
       } catch (err) {
         console.log(err);
       }
-      if (shop.contact != req.user.data.contact) {
-        try {
-          await sendOtpToMobile(shop.contact);
-        } catch (err) {
-          temp1 = 0;
-          console.log(err);
-        }
-      }
       if (temp1 === 0) {
         return res.status(400).json({
           success: false,
           message: "Registeration Successful!",
-          error: "OTP cannot be sent. Login to recieve!"
+          error: "But Some error occurred during sending email and OTP on mobile!"
         });
       }
       else {
@@ -192,3 +194,55 @@ module.exports.retryContactVerification = async (req, res) => {
     res.status(400).json({ message: "No User Found" });
   }
 };
+
+//check
+module.exports.addProducts = async (req, res) => {
+  let  { name, category, weight, size, expirationDate, expireBefore, price, discount, manufacturer, quantity } = req.body;
+  if(expirationDate)
+  {
+    if(expireBefore)
+      return res.status(400).json({ message: "Can't have both expiration date and expire before!" });
+  }
+  if(weight)
+  {
+    if(size)
+      return res.status(400).json({ message: "Can't have both expiration weight and size!" });
+  }
+  if (!name || !category || !price || !discount || !manufacturer || !quantity)
+    return res.status(400).json({ message: "All fields are mandatory!" });
+    let product;
+    if(weight)
+    {
+      if(expirationDate)
+        product = await Product.findOne({ name, category, "details.weight": weight, expirationDate, manufacturer, whichShop });
+      else
+        product = await Product.findOne({ name, category, "details.weight": weight, expireBefore, manufacturer, whichShop });
+    }
+    else
+      product = await Product.findOne({ name, category, "details.size": size, manufacturer, whichShop });
+    if(product)
+      res.status(400).json({ message: "Product is already added!" });
+    //need to code further
+}
+
+//check
+module.exports.readQrData = async (req, res) => {
+  let { _id } = req.body;
+  let { id } = req.params;
+  user = await User.findOne({ _id });
+  shop = await Shop.findOne({ id });
+  user.current_session.inShop = true;
+  user.current_session.currentShop = shop.name;
+  let temp = 0;
+  for(var i=0; i<user.previousShopVisits.length; i++)
+  {
+    if(user.previousShopVisits[i] == id)
+    {
+      temp = 1;
+      break;
+    }
+  }
+  if(temp == 0)
+    user.previousShopVisits.push(id);
+  user.save();
+}
