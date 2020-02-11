@@ -1110,14 +1110,3 @@ module.exports.deleteUser = async (req, res) => {
     res.status(400).json({ message: "No such User!" });
   }
 };
-
-module.exports.contactAdmin = async (req, res) => {
-
-  let { name, email, contact, message } = req.body;
-  if (req.params.emailid) email = req.params.emailid;
-  let newContact = {
-    name, email, contact, message
-  };
-  await Contact.create(newContact);
-  res.status(200).json({ message: "Message Sent!" });
-};
