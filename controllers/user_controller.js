@@ -196,8 +196,6 @@ module.exports.register = async (req, res) => {
   }
 };
 
-
-//check
 module.exports.addStaff = async (req, res) => {
 
   let { firstName, lastName, email, contact } = req.body;

@@ -43,11 +43,15 @@ sendShopAddedEmail1 = async (req, res) => {
   }
 };
 
-//check
 module.exports.register = async (req, res) => {
   const token = req.header("x-auth-token");
   const decodedPayload = jwt.verify(token, process.env.SECRET);
   req.user = decodedPayload;
+  let user = await User.find({ "$or": [{ "_id": req.user.data._id }, { "admin": req.user.data._id }] });
+  if (user[0].shop)
+    return res
+      .status(400)
+      .json({ message: "Your Shop is already registered with us!" });
   let { shopName, description, contact, line1, line2, city, state, pincode } = req.body;
   var line;
   if (line2 === "") line = line1;
@@ -57,65 +61,63 @@ module.exports.register = async (req, res) => {
     return res.status(400).json({ message: "All fields are mandatory!" });
   let pincodeRegex = /^[1-9][0-9]{5}$/;
   if (pincodeRegex.test(pincode)) {
-
-    let shop = await Shop.findOne({ shopName, contact, "address.pincode": pincode });
-    if (shop) {
-      return res
-        .status(400)
-        .json({ message: "Your Shop is already registered with us!" });
-    } else {
-      let newShop = {
-        shopName,
-        description,
-        contact,
-        address: {
-          line1,
-          line2,
-          city,
-          state,
-          pincode
-        }
-      };
-      shop = await Shop.create(newShop);
-      //if _id is in shop then you need to store in user
-      temp1 = 1;
-      try {
-        let here = { email: req.user.data.email, contact: shop.contact };
-        if (shop.contact != req.user.data.contact) {
-          try {
-            await sendOtpToMobile(shop.contact);
-            await sendShopAddedEmail(here);
-          } catch (err) {
-            temp1 = 0;
-            console.log(err);
-          }
-        }
-        else
-          await sendShopAddedEmail1(here);
-      } catch (err) {
-        console.log(err);
+    let newShop = {
+      shopName,
+      description,
+      contact,
+      address: {
+        line1,
+        line2,
+        city,
+        state,
+        pincode
       }
-      if (temp1 === 0) {
-        return res.status(400).json({
-          success: false,
-          message: "Registeration Successful!",
-          error: "But Some error occurred during sending email and OTP on mobile!"
-        });
+    };
+    shop = await Shop.create(newShop);
+    for (var i = 0; i < user.length; i++) {
+      user[i].shop = shop._id;
+      user[i].save();
+    }
+    temp1 = 1;
+    try {
+      let here = { email: req.user.data.email, contact: shop.contact };
+      if (shop.contact != req.user.data.contact) {
+        try {
+          await sendOtpToMobile(shop.contact);
+          await sendShopAddedEmail(here);
+        } catch (err) {
+          temp1 = 0;
+          console.log(err);
+        }
       }
       else {
-        if (shop.contact != req.user.data.contact)
-          res.status(200).json({
-            success: true,
-            message:
-              "Registeration Successful! Verify Mobile Number of Your Shop!"
-          });
-        else
-          res.status(200).json({
-            success: true,
-            message:
-              "Registeration Successful!"
-          });
+        shop.isContactVerified = true;
+        shop.save();
+        await sendShopAddedEmail1(here);
       }
+    } catch (err) {
+      console.log(err);
+    }
+    if (temp1 === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Registeration Successful!",
+        error: "But Some error occurred during sending email and OTP on mobile!"
+      });
+    }
+    else {
+      if (shop.contact != req.user.data.contact)
+        res.status(200).json({
+          success: true,
+          message:
+            "Registeration Successful! Verify Mobile Number of Your Shop!"
+        });
+      else
+        res.status(200).json({
+          success: true,
+          message:
+            "Registeration Successful!"
+        });
     }
   }
   else {
@@ -194,9 +196,13 @@ module.exports.retryContactVerification = async (req, res) => {
   }
 };
 
-//check
 module.exports.addProducts = async (req, res) => {
-  let { name, category, weight, size, expirationDate, expireBefore, price, discount, manufacturer, quantity } = req.body;
+  const token = req.header("x-auth-token");
+  const decodedPayload = jwt.verify(token, process.env.SECRET);
+  req.user = decodedPayload;
+  user = await User.findOne({ "_id": req.user.data._id });
+  let whichShop = user.shop;
+  let { name, category, weight, size, manufacturingDate, expirationDate, expireBefore, price, discount, manufacturer, quantity } = req.body;
   if (expirationDate) {
     if (expireBefore)
       return res.status(400).json({ message: "Can't have both expiration date and expire before!" });
@@ -205,28 +211,55 @@ module.exports.addProducts = async (req, res) => {
     if (size)
       return res.status(400).json({ message: "Can't have both expiration weight and size!" });
   }
-  if (!name || !category || !price || !discount || !manufacturer || !quantity)
+  if (!name || !category || !price || !discount || !manufacturer || !manufacturingDate || !quantity)
     return res.status(400).json({ message: "All fields are mandatory!" });
   let product;
   if (weight) {
-    if (expirationDate)
-      product = await Product.findOne({ name, category, "details.weight": weight, expirationDate, manufacturer, whichShop });
+    if (expirationDate || expireBefore)
+      product = await Product.findOne({ name, category, "details.weight": weight, expirationDate, expireBefore, manufacturer, manufacturingDate, whichShop });
     else
-      product = await Product.findOne({ name, category, "details.weight": weight, expireBefore, manufacturer, whichShop });
+      product = await Product.findOne({ name, category, "details.weight": weight, expireBefore, manufacturer, manufacturingDate, whichShop });
   }
   else
     product = await Product.findOne({ name, category, "details.size": size, manufacturer, whichShop });
   if (product)
-    res.status(400).json({ message: "Product is already added!" });
-  //need to code further
+    return res.status(400).json({ message: "Product is already added!" });
+  if (expirationDate || expireBefore)
+    product = {
+      name,
+      category,
+      weight,
+      expirationDate,
+      expireBefore,
+      price,
+      discount,
+      manufacturer,
+      manufacturingDate,
+      quantity
+    };
+  else
+    product = {
+      name,
+      category,
+      size,
+      price,
+      discount,
+      manufacturer,
+      quantity
+    };
+  product = await Product.create(product);
+  product.whichShop = user.shop;
+  await product.save();
+  return res.status(400).json({ message: "Product Added Successfully!" });
 }
 
-//check
 module.exports.readQrData = async (req, res) => {
   let { _id } = req.body;
   let { id } = req.params;
   user = await User.findOne({ _id });
-  shop = await Shop.findOne({ id });
+  shop = await Shop.findOne({ "_id": id });
+  if (user.role != "customer")
+    return res.status(400).json({ message: "You cannot Shop!" });
   user.current_session.inShop = true;
   user.current_session.currentShop = shop.name;
   let temp = 0;
@@ -239,4 +272,5 @@ module.exports.readQrData = async (req, res) => {
   if (temp == 0)
     user.previousShopVisits.push(id);
   user.save();
+  return res.status(200).json({ message: "Welcome " + user.name + "!" });
 }

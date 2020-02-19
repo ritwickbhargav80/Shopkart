@@ -9,6 +9,6 @@ router.post("/register", adminAuth, register);
 router.post("/verifyMobile/:contact", verifyContact);
 router.get("/retryVerification/:contact", retryContactVerification);
 router.post("/add", staffandadminAuth, addProducts);
-router.post("/readQrCode/:id", customerAuth, readQrData);
+router.post("/readQrCode/:id", readQrData);
 
 module.exports = router;

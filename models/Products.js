@@ -17,6 +17,9 @@ var ProductSchema = new mongoose.Schema({
       type: String
     }
   },
+  manufacturingDate: {
+    type: Date
+  },
   expirationDate: {
     type: Date
   },
