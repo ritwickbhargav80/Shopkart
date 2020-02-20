@@ -336,3 +336,28 @@ module.exports.viewCart = async (req, res) => {
   }
   return res.status(200).json({ success: true, cart: arr });
 }
+
+module.exports.removeFromCart = async (req, res) => {
+  let { id } = req.params;
+  let { quantity } = req.body;
+  product = await Product.findOne({ "_id": id });
+  const token = req.header("x-auth-token");
+  const decodedPayload = jwt.verify(token, process.env.SECRET);
+  req.user = decodedPayload;
+  user = await User.findOne({ "_id": req.user.data._id });
+  arr = [];
+  if (!quantity) {
+    arr = user.current_session.cart.filter(i => !i.product.equals(id));
+    user.current_session.cart = arr;
+  }
+  else {
+    index = user.current_session.cart.findIndex(i => i.product.equals(id));
+    if (index != -1) {
+      user.current_session.cart[index].quantity = quantity;
+      user.save();
+      return res.status(200).json({ message: "Cart Updated!" });
+    }
+  }
+  user.save();
+  return res.status(200).json({ message: "Removed from Cart!" });
+}

@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-let { register, verifyContact, retryContactVerification, addProducts, viewProducts, readQrData, addToCart, viewCart } = require("../controllers/shop_controller");
+let { register, verifyContact, retryContactVerification, addProducts, viewProducts, readQrData, addToCart, viewCart, removeFromCart } = require("../controllers/shop_controller");
 
 let { adminAuth, staffAuth, customerAuth, allAuth, someAuth, staffandadminAuth } = require("../config/auth");
 
@@ -13,5 +13,6 @@ router.get("/viewall", allAuth, viewProducts);
 router.post("/readQrCode/:id", readQrData);
 router.post("/cart/:id", customerAuth, addToCart);
 router.get("/viewcart", customerAuth, viewCart);
+router.post("/cart/remove/:id", customerAuth, removeFromCart);
 
 module.exports = router;
