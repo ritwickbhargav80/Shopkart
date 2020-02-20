@@ -309,3 +309,22 @@ module.exports.addToCart = async (req, res) => {
   user.save();
   res.status(200).json({ message: "Added to the Cart!" });
 }
+
+module.exports.viewCart = async (req, res) => {
+  const token = req.header("x-auth-token");
+  const decodedPayload = jwt.verify(token, process.env.SECRET);
+  req.user = decodedPayload;
+  user = await User.findOne({ "_id": req.user.data._id });
+  if (user.role != "customer")
+    return res.status(400).json({ message: "You don't have a cart!" })
+  if (user.current_session.inShop === false)
+    return res.status(400).json({ message: "Please get your QRcode Scanned to start your Shopping Experience!" })
+  var arr = [];
+  for (var i = 0; i < user.current_session.cart.length; i++) {
+    product = user.current_session.cart[i].product;
+    quantity = user.current_session.cart[i].quantity;
+    product = await Product.findOne({ "_id": user.current_session.cart[i].product });
+    arr.push({ product: product, quantity: quantity });
+  }
+  return res.status(200).json({ success: true, cart: arr });
+}
