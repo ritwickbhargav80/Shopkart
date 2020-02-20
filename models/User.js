@@ -68,11 +68,20 @@ const UserSchema = mongoose.Schema({
       default: false
     },
     currentShop: {
-      type: String,
-      default: "none"
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Shop"
     },
     cart: {
-      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Products" }],
+      type: [{
+        product: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Products"
+        },
+        quantity: {
+          type: Number,
+          default: 1
+        }
+      }],
       default: []
     }
   },

@@ -253,6 +253,22 @@ module.exports.addProducts = async (req, res) => {
   return res.status(400).json({ message: "Product Added Successfully!" });
 }
 
+module.exports.viewProducts = async (req, res) => {
+  const token = req.header("x-auth-token");
+  const decodedPayload = jwt.verify(token, process.env.SECRET);
+  req.user = decodedPayload;
+  user = await User.findOne({ "_id": req.user.data._id });
+  if (user.role === "customer") {
+    if (user.current_session.inShop === false)
+      return res.status(400).json({ message: "Please get your QRcode Scanned!" })
+    shop = user.current_session.currentShop;
+  }
+  else
+    shop = user.shop;
+  product = await Product.find({ "whichShop": shop });
+  return res.status(200).json({ success: true, product: product });
+}
+
 module.exports.readQrData = async (req, res) => {
   let { _id } = req.body;
   let { id } = req.params;
@@ -261,7 +277,7 @@ module.exports.readQrData = async (req, res) => {
   if (user.role != "customer")
     return res.status(400).json({ message: "You cannot Shop!" });
   user.current_session.inShop = true;
-  user.current_session.currentShop = shop.name;
+  user.current_session.currentShop = id;
   let temp = 0;
   for (var i = 0; i < user.previousShopVisits.length; i++) {
     if (user.previousShopVisits[i] == id) {
@@ -273,4 +289,23 @@ module.exports.readQrData = async (req, res) => {
     user.previousShopVisits.push(id);
   user.save();
   return res.status(200).json({ message: "Welcome " + user.name + "!" });
+}
+
+module.exports.addToCart = async (req, res) => {
+  let { id } = req.params;
+  let { quantity } = req.body;
+  product = await Product.findOne({ "_id": id });
+  const token = req.header("x-auth-token");
+  const decodedPayload = jwt.verify(token, process.env.SECRET);
+  req.user = decodedPayload;
+  user = await User.findOne({ "_id": req.user.data._id });
+  if (!product || !user.current_session.currentShop.equals(product.whichShop))
+    return res.status(400).json({ message: "No Such Product Exists!" });
+  if (!user.current_session.currentShop.equals(product.whichShop))
+    return res.status(400).json({ message: "Please get your QRcode Scanned!" });
+  if (user.role != "customer")
+    return res.status(400).json({ message: "You cannot Shop!" });
+  await user.current_session.cart.push({ product: id, quantity: quantity });
+  user.save();
+  res.status(200).json({ message: "Added to the Cart!" });
 }
