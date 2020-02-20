@@ -305,12 +305,15 @@ module.exports.addToCart = async (req, res) => {
     return res.status(400).json({ message: "Please get your QRcode Scanned!" });
   if (user.role != "customer")
     return res.status(400).json({ message: "You cannot Shop!" });
-  debugger
   if (user.current_session.cart)
-    if (user.current_session.cart.some(i => i.product.equals(id))) {
-      return res.status(200).json({ message: "You can't add same product again!" });
-    }
-  await user.current_session.cart.push({ product: id, quantity: quantity });
+    index = user.current_session.cart.findIndex(i => i.product.equals(id));
+  if (index != -1) {
+    user.current_session.cart[index].quantity = quantity;
+    user.save();
+    return res.status(200).json({ message: "Cart Updated!" });
+  }
+  else
+    await user.current_session.cart.push({ product: id, quantity: quantity });
   user.save();
   res.status(200).json({ message: "Added to the Cart!" });
 }
