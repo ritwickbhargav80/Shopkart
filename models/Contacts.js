@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const uniqueValidator = require("mongoose-unique-validator");
 
 const ContactsSchema = mongoose.Schema({
   name: {
@@ -20,8 +19,6 @@ const ContactsSchema = mongoose.Schema({
     required: true
   }
 });
-
-ContactsSchema.plugin(uniqueValidator);
 
 const Contacts = (module.exports = mongoose.model(
   "Contacts",

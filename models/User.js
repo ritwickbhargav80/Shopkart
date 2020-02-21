@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
-const uniqueValidator = require("mongoose-unique-validator");
 
 const UserSchema = mongoose.Schema({
   name: {
@@ -55,10 +54,50 @@ const UserSchema = mongoose.Schema({
   qrcode: {
     id: String,
     url: String
+  },
+  referral_code: {
+    type: String
+  },
+  bonus: {
+    type: Number,
+    default: 0
+  },
+  current_session: {
+    inShop: {
+      type: Boolean,
+      default: false
+    },
+    currentShop: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Shop"
+    },
+    cart: {
+      type: [{
+        product: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Products"
+        },
+        quantity: {
+          type: Number,
+          default: 1
+        }
+      }],
+      default: []
+    }
+  },
+  previousShopVisits: {
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Shop" }],
+    default: []
+  },
+  admin: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
+  },
+  shop: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Shop"
   }
 });
-
-UserSchema.plugin(uniqueValidator);
 
 UserSchema.methods.generateAuthToken = () => {
   const token = jwt.sign(

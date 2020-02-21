@@ -95,3 +95,5 @@ module.exports.staffandadminAuth = (req, res, next) => {
     }
   }
 };
+
+// jwt.verify in try catch

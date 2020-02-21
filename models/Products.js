@@ -9,9 +9,22 @@ var ProductSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  details: {
+    weight: {
+      type: String
+    },
+    size: {
+      type: String
+    }
+  },
+  manufacturingDate: {
+    type: Date
+  },
   expirationDate: {
-    type: Date,
-    required: true
+    type: Date
+  },
+  expireBefore: {
+    type: String
   },
   price: {
     type: Number,
@@ -23,6 +36,10 @@ var ProductSchema = new mongoose.Schema({
   },
   manufacturer: {
     type: String,
+    required: true
+  },
+  quantity: {
+    type: Number,
     required: true
   },
   whichShop: {
