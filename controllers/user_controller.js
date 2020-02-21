@@ -98,6 +98,8 @@ generatePassword = (req, res) => {
 module.exports.register = async (req, res) => {
 
   let { firstName, lastName, email, contact, password, confirmPassword, referral_code, role } = req.body;
+  if (!role)
+    role = "customer";
   if (role == "staff")
     return res.status(400).json({ message: "You can't register as a staff! Ask your manager to get you registered!" });
   var name;
