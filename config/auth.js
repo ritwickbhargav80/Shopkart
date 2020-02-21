@@ -67,7 +67,7 @@ module.exports.someAuth = async (req, res, next) => {
     }
     return res.status(401).json({ message: "Access denied!" });
   } else {
-    const decodedPayload = jwt.verify(token, process.env.secret);
+    const decodedPayload = jwt.verify(token, process.env.SECRET);
     req.user = decodedPayload;
     if (req.user.data.role === "admin") {
       return next();
