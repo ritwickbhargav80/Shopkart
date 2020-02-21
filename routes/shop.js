@@ -14,5 +14,7 @@ router.post("/readQrCode/:id", readQrData);
 router.post("/cart/:id", customerAuth, addToCart);
 router.get("/viewcart", customerAuth, viewCart);
 router.post("/cart/remove/:id", customerAuth, removeFromCart);
+//delete put
+//razorpay
 
 module.exports = router;

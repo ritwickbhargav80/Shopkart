@@ -291,7 +291,7 @@ module.exports.addStaff = async (req, res) => {
 };
 
 module.exports.login = async (req, res) => {
-
+  debugger
   let { email, mobile, password } = req.body;
   var user;
   user =
@@ -414,7 +414,7 @@ module.exports.login = async (req, res) => {
           qrcode_url: user.qrcode.url
         }
       },
-      process.env.secret,
+      process.env.SECRET,
       {
         expiresIn: 604800 // for 1 week time in milliseconds
       }
@@ -479,7 +479,7 @@ module.exports.verifyEmail = async (req, res) => {
             role: user.role
           }
         },
-        process.env.secret,
+        process.env.SECRET,
         {
           expiresIn: 604800 // for 1 week time in milliseconds
         }
@@ -562,7 +562,7 @@ module.exports.verifyEmail = async (req, res) => {
             role: user.role
           }
         },
-        process.env.secret,
+        process.env.SECRET,
         {
           expiresIn: 604800 // for 1 week time in milliseconds
         }
@@ -659,7 +659,7 @@ module.exports.verifyContact = async (req, res) => {
             role: user.role
           }
         },
-        process.env.secret,
+        process.env.SECRET,
         {
           expiresIn: 604800 // for 1 week time in milliseconds
         }
@@ -744,7 +744,7 @@ module.exports.verifyContact = async (req, res) => {
                   role: user.role
                 }
               },
-              process.env.secret,
+              process.env.SECRET,
               {
                 expiresIn: 604800 // for 1 week time in milliseconds
               }
@@ -843,7 +843,7 @@ module.exports.retryContactVerification = async (req, res) => {
             role: user.role
           }
         },
-        process.env.secret,
+        process.env.SECRET,
         {
           expiresIn: 604800 // for 1 week time in milliseconds
         }
