@@ -253,6 +253,23 @@ module.exports.addProducts = async (req, res) => {
   return res.status(400).json({ message: "Product Added Successfully!" });
 }
 
+module.exports.viewOneProduct = async (req, res) => {
+  const token = req.header("x-auth-token");
+  const decodedPayload = jwt.verify(token, process.env.SECRET);
+  req.user = decodedPayload;
+  user = await User.findOne({ "_id": req.user.data._id });
+  if (user.role === "customer") {
+    if (user.current_session.inShop === false)
+      return res.status(400).json({ message: "Please get your QRcode Scanned!" })
+    shop = user.current_session.currentShop;
+  }
+  else
+    shop = user.shop;
+  let { id } = req.params;
+  product = await Product.findOne({ _id: id });
+  return res.status(200).json({ success: true, product: product });
+}
+
 module.exports.viewProducts = async (req, res) => {
   const token = req.header("x-auth-token");
   const decodedPayload = jwt.verify(token, process.env.SECRET);

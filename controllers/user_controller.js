@@ -9,13 +9,7 @@ const imgUpload = require('../config/imgUpload');
 const User = require("../models/User");
 const Contact = require("../models/Contacts");
 
-let {
-  messageTemplate,
-  email1,
-  email2,
-  email3,
-  email6
-} = require("../config/templates");
+let { messageTemplate, email1, email2, email3, email6 } = require("../config/templates");
 
 const sendOtp = new SendOtp(process.env.MSG91_API_KEY, messageTemplate);
 
@@ -96,30 +90,34 @@ generatePassword = (req, res) => {
 }
 
 module.exports.register = async (req, res) => {
-
   let { firstName, lastName, email, contact, password, confirmPassword, referral_code, role } = req.body;
   if (!role)
     role = "customer";
-  if (role == "staff")
-    return res.status(400).json({ message: "You can't register as a staff! Ask your manager to get you registered!" });
   var name;
   if (lastName === "") name = firstName;
   else name = firstName + " " + lastName;
   if (!name || !email || !contact || !password || !role)
-    return res.status(400).json({ message: "All fields are mandatory!" });
+    return res.status(400).json({
+      status: false,
+      message: "All fields are mandatory!"
+    });
   let emailRegex = /^\S+@\S+\.\S+/,
     phoneRegex = /^([0|\+[0-9]{1,5})?([6-9][0-9]{9})$/,
     passwordRegex = /^[\S]{8,}/;
   if (emailRegex.test(email)) {
     if (passwordRegex.test(String(password))) {
       if (phoneRegex.test(Number(contact))) {
-        let user =
-          (await User.findOne({ email })) || (await User.findOne({ contact }));
+        let user = await User.findOne({ $or: [{ email: email }, { contact: contact }] });
         if (user) {
           return res
             .status(400)
-            .json({ message: "Email or Contact already registered with us!" });
+            .json({
+              status: false,
+              message: "Email or Contact already registered with us!"
+            });
         } else {
+          if (role == "staff")
+            return res.status(400).json({ message: "You can't register as a staff! Ask your manager to get you registered!" });
           let newUser;
           if (referral_code && role == "customer") {
             temp_user = await User.findOne({ referral_code });
@@ -214,8 +212,7 @@ module.exports.addStaff = async (req, res) => {
   if (emailRegex.test(email)) {
     if (passwordRegex.test(String(password))) {
       if (phoneRegex.test(Number(contact))) {
-        let user =
-          (await User.findOne({ email })) || (await User.findOne({ contact }));
+        let user = await User.findOne({ $or: [{ email: email }, { contact: contact }] });
         if (user) {
           return res
             .status(400)
@@ -291,12 +288,9 @@ module.exports.addStaff = async (req, res) => {
 };
 
 module.exports.login = async (req, res) => {
-  debugger
   let { email, mobile, password } = req.body;
   var user;
-  user =
-    (await User.findOne({ email: email })) ||
-    (await User.findOne({ contact: mobile }));
+  user = await User.findOne({ $or: [{ email: email }, { contact: contact }] });
   if (!user) {
     return res.status(400).json({ success: false, message: "User not found!" });
   }
@@ -937,9 +931,7 @@ module.exports.profile = async (req, res) => {
 module.exports.sendForgetEmail = async (req, res) => {
 
   let { emailormobile } = req.params;
-  let user =
-    (await User.findOne({ email: emailormobile })) ||
-    (await User.findOne({ contact: emailormobile }));
+  let user = await User.findOne({ $or: [{ email: emailormobile }, { contact: emailormobile }] });
   if (user) {
     if (user.isContactVerified === true && user.isEmailVerified === true) {
       if (!user.resetPwd.token || user.resetPwd.expiresIn < Date.now()) {
