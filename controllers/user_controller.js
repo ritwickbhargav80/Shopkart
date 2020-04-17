@@ -100,13 +100,14 @@ module.exports.register = async (req, res) => {
   let { firstName, lastName, email, contact, password, confirmPassword, referral_code, role } = req.body;
   if (!role)
     role = "customer";
-  if (role == "staff")
-    return res.status(400).json({ message: "You can't register as a staff! Ask your manager to get you registered!" });
   var name;
   if (lastName === "") name = firstName;
   else name = firstName + " " + lastName;
   if (!name || !email || !contact || !password || !role)
-    return res.status(400).json({ message: "All fields are mandatory!" });
+    return res.status(400).json({
+      status: false,
+      message: "All fields are mandatory!"
+    });
   let emailRegex = /^\S+@\S+\.\S+/,
     phoneRegex = /^([0|\+[0-9]{1,5})?([6-9][0-9]{9})$/,
     passwordRegex = /^[\S]{8,}/;
@@ -118,8 +119,13 @@ module.exports.register = async (req, res) => {
         if (user) {
           return res
             .status(400)
-            .json({ message: "Email or Contact already registered with us!" });
+            .json({
+              status: false,
+              message: "Email or Contact already registered with us!"
+            });
         } else {
+          if (role == "staff")
+            return res.status(400).json({ message: "You can't register as a staff! Ask your manager to get you registered!" });
           let newUser;
           if (referral_code && role == "customer") {
             temp_user = await User.findOne({ referral_code });
@@ -291,7 +297,6 @@ module.exports.addStaff = async (req, res) => {
 };
 
 module.exports.login = async (req, res) => {
-  debugger
   let { email, mobile, password } = req.body;
   var user;
   user =
