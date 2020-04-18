@@ -601,8 +601,8 @@ module.exports.verifyEmail = async (req, res) => {
 };
 
 module.exports.verifyContact = async (req, res) => {
-
   let { contact } = req.params;
+  contact = "+91" + contact;
   let { otp } = req.body;
   let user = await User.findOne({ contact: contact });
   if (user) {
@@ -787,6 +787,7 @@ module.exports.verifyContact = async (req, res) => {
 
 module.exports.retryContactVerification = async (req, res) => {
   let { contact } = req.params;
+  contact = "+91" + contact;
   let user = await User.findOne({ contact: contact });
   if (user) {
     if (user.isContactVerified === true && user.isEmailVerified === true) {
@@ -929,7 +930,6 @@ module.exports.profile = async (req, res) => {
 };
 
 module.exports.sendForgetEmail = async (req, res) => {
-
   let { emailormobile } = req.params;
   let user = await User.findOne({ $or: [{ email: emailormobile }, { contact: emailormobile }] });
   if (user) {
