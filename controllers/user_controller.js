@@ -94,7 +94,7 @@ module.exports.register = async (req, res) => {
   if (!role)
     role = "customer";
   var name;
-  contact = "+91" + contact; s
+  contact = "+91" + contact;
   if (lastName === undefined) name = firstName;
   else name = firstName + " " + lastName;
   if (!name || !email || !contact || !password || !role)
