@@ -291,6 +291,7 @@ module.exports.login = async (req, res) => {
   let { email, mobile, password } = req.body;
   var user;
   user = await User.findOne({ $or: [{ email: email }, { contact: mobile }] });
+  debugger
   if (!user) {
     return res.status(400).json({ success: false, message: "User not found!" });
   }
