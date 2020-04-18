@@ -1,7 +1,9 @@
 const nodemailer = require("nodemailer");
+var smtpTransport = require('nodemailer-smtp-transport');
 
-let transporter = nodemailer.createTransport({
+let transporter = nodemailer.createTransport(smtpTransport({
   service: "gmail",
+  host: 'smtp.gmail.com',
   auth: {
     user: process.env.EMAIL,
     pass: process.env.PASSWORD
@@ -9,7 +11,7 @@ let transporter = nodemailer.createTransport({
   tls: {
     rejectUnauthorized: false
   }
-});
+}));
 
 module.exports.messageTemplate =
   "Your One Time Password is: {{otp}}. This Code is valid only for 10 Minutes. Do not give this code to anyone, even if they say they are from Shopkart Inc.! \n\nIf you didn't request this code, simply ignore this message.\n\nThanks,\nTeam Shopkart Inc.";
