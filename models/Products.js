@@ -42,6 +42,10 @@ var ProductSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  qrcode: {
+    id: String,
+    url: String
+  },
   whichShop: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Shop"

@@ -94,8 +94,8 @@ module.exports.register = async (req, res) => {
   if (!role)
     role = "customer";
   var name;
-  contact = "+91" + contact;
-  if (lastName === "") name = firstName;
+  contact = "+91" + contact; s
+  if (lastName === undefined) name = firstName;
   else name = firstName + " " + lastName;
   if (!name || !email || !contact || !password || !role)
     return res.status(400).json({
@@ -218,9 +218,6 @@ module.exports.addStaff = async (req, res) => {
             .status(400)
             .json({ message: "Email or Contact already registered with us!" });
         } else {
-          const token = req.header("x-auth-token");
-          const decodedPayload = jwt.verify(token, process.env.SECRET);
-          req.user = decodedPayload;
           let newUser;
           newUser = {
             name,
@@ -422,7 +419,6 @@ module.exports.login = async (req, res) => {
 };
 
 module.exports.verifyEmail = async (req, res) => {
-
   let { email, token } = req.params;
   let user = await User.findOne({ email: email });
   if (user) {
@@ -907,7 +903,6 @@ module.exports.retryContactVerification = async (req, res) => {
 };
 
 module.exports.profile = async (req, res) => {
-
   let user = await User.findById(req.user.data._id);
   id = user._id;
   isEmailVerified = user.isEmailVerified;
@@ -1004,7 +999,6 @@ module.exports.sendForgetEmail = async (req, res) => {
 };
 
 module.exports.forgetPassword = async (req, res) => {
-
   let { email, token } = req.params;
   let { password, confirmPassword } = req.body;
   let user = await User.findOne({ email: email });

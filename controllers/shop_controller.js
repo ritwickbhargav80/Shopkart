@@ -1,6 +1,9 @@
 const jwt = require("jsonwebtoken");
 const SendOtp = require("sendotp");
 const axios = require("axios");
+const qrcode = require("qrcode");
+const cloudinary = require('cloudinary');
+const imgUpload = require('../config/imgUpload');
 require("dotenv").config();
 const Shop = require("../models/Shop");
 const User = require("../models/User");
@@ -44,9 +47,6 @@ sendShopAddedEmail1 = async (req, res) => {
 };
 
 module.exports.register = async (req, res) => {
-  const token = req.header("x-auth-token");
-  const decodedPayload = jwt.verify(token, process.env.SECRET);
-  req.user = decodedPayload;
   let user = await User.find({ "$or": [{ "_id": req.user.data._id }, { "admin": req.user.data._id }] });
   if (user[0].shop)
     return res
@@ -57,7 +57,7 @@ module.exports.register = async (req, res) => {
   if (line2 === "") line = line1;
   else if (line1 === "") line = line2;
   else line = line1 + " " + line2;
-  if (!shopName || !description || !contact || !line || !city || !state || !pincode)
+  if (!shopName || !description || !line || !city || !state || !pincode)
     return res.status(400).json({ message: "All fields are mandatory!" });
   let pincodeRegex = /^[1-9][0-9]{5}$/;
   if (pincodeRegex.test(pincode)) {
@@ -73,6 +73,12 @@ module.exports.register = async (req, res) => {
         pincode
       }
     };
+    if (newShop.contact === undefined)
+      newShop.contact = "+91";
+    else
+      newShop.contact = "+91" + newShop.contact;
+    if (newShop.contact === "+91")
+      newShop.contact = user[0].contact;
     shop = await Shop.create(newShop);
     for (var i = 0; i < user.length; i++) {
       user[i].shop = shop._id;
@@ -127,6 +133,7 @@ module.exports.register = async (req, res) => {
 
 module.exports.verifyContact = async (req, res) => {
   let { contact } = req.params;
+  contact = "+91" + contact;
   let { otp } = req.body;
   let shop = await Shop.findOne({ contact: contact });
   if (shop) {
@@ -161,6 +168,7 @@ module.exports.verifyContact = async (req, res) => {
 
 module.exports.retryContactVerification = async (req, res) => {
   let { contact } = req.params;
+  contact = "+91" + contact;
   let shop = await Shop.findOne({ contact: contact });
   if (shop) {
     if (user.isContactVerified === true) {
@@ -197,9 +205,6 @@ module.exports.retryContactVerification = async (req, res) => {
 };
 
 module.exports.addProducts = async (req, res) => {
-  const token = req.header("x-auth-token");
-  const decodedPayload = jwt.verify(token, process.env.SECRET);
-  req.user = decodedPayload;
   user = await User.findOne({ "_id": req.user.data._id });
   let whichShop = user.shop;
   let { name, category, weight, size, manufacturingDate, expirationDate, expireBefore, price, discount, manufacturer, quantity } = req.body;
@@ -247,6 +252,28 @@ module.exports.addProducts = async (req, res) => {
       manufacturer,
       quantity
     };
+  let JSONobject = JSON.stringify(product);
+  var opts = {
+    errorCorrectionLevel: 'H',
+    type: 'image/jpeg',
+    quality: 1,
+    margin: 1
+  }
+  qrcode.toDataURL(JSONobject, opts)
+    .then(url => {
+      cloudinary.uploader.upload(url, (result, error) => {
+        if (result) {
+          product.qrcode.id = result.public_id;
+          product.qrcode.url = result.url;
+          product.save();
+        } else if (error) {
+          console.log("QR Code is not Uploaded!");
+        }
+      });
+    })
+    .catch(err => {
+      console.error(err)
+    })
   product = await Product.create(product);
   product.whichShop = user.shop;
   await product.save();
@@ -254,9 +281,6 @@ module.exports.addProducts = async (req, res) => {
 }
 
 module.exports.viewOneProduct = async (req, res) => {
-  const token = req.header("x-auth-token");
-  const decodedPayload = jwt.verify(token, process.env.SECRET);
-  req.user = decodedPayload;
   user = await User.findOne({ "_id": req.user.data._id });
   if (user.role === "customer") {
     if (user.current_session.inShop === false)
@@ -267,20 +291,17 @@ module.exports.viewOneProduct = async (req, res) => {
     shop = user.shop;
   let { id } = req.params;
   product = await Product.findOne({ _id: id });
-  if(product)
+  if (product)
     return res.status(200).json({ success: true, product: product });
   else
-  return res.status(400).json({ success: false, message: "No such product found!" });
+    return res.status(400).json({ success: false, message: "No such product found!" });
 }
 
 module.exports.viewProducts = async (req, res) => {
-  const token = req.header("x-auth-token");
-  const decodedPayload = jwt.verify(token, process.env.SECRET);
-  req.user = decodedPayload;
   user = await User.findOne({ "_id": req.user.data._id });
   if (user.role === "customer") {
     if (user.current_session.inShop === false)
-      return res.status(400).json({ message: "Please get your QRcode Scanned!" })
+      return res.status(400).json({ message: "Please get your QRcode Scanned!" });
     shop = user.current_session.currentShop;
   }
   else
@@ -290,8 +311,8 @@ module.exports.viewProducts = async (req, res) => {
 }
 
 module.exports.readQrData = async (req, res) => {
-  let { _id } = req.body;
-  let { id } = req.params;
+  let { _id } = req.params;
+  const id = process.env.SHOP_ID;
   user = await User.findOne({ _id });
   shop = await Shop.findOne({ "_id": id });
   if (user.role != "customer")
@@ -311,13 +332,26 @@ module.exports.readQrData = async (req, res) => {
   return res.status(200).json({ message: "Welcome " + user.name + "!" });
 }
 
+module.exports.qrStatus = async (req, res) => {
+  user = await User.findOne({ "_id": req.user.data._id });
+  if (user.role != "customer")
+    return res.status(400).json({ message: "You cannot Shop!" });
+  else {
+    if (user.current_session.inShop) {
+      if (user.current_session.currentShop._id.equals(process.env.SHOP_ID)) {
+        return res.status(400).json({ success: true, message: "Start your Shopping experience!" });
+      }
+      else {
+        return res.status(200).json({ success: false, message: "Please get your QRcode Scanned!" });
+      }
+    }
+  }
+}
+
 module.exports.addToCart = async (req, res) => {
   let { id } = req.params;
   let { quantity } = req.body;
   product = await Product.findOne({ "_id": id });
-  const token = req.header("x-auth-token");
-  const decodedPayload = jwt.verify(token, process.env.SECRET);
-  req.user = decodedPayload;
   user = await User.findOne({ "_id": req.user.data._id });
   if (!product || !user.current_session.currentShop.equals(product.whichShop))
     return res.status(400).json({ message: "No Such Product Exists!" });
@@ -339,9 +373,6 @@ module.exports.addToCart = async (req, res) => {
 }
 
 module.exports.viewCart = async (req, res) => {
-  const token = req.header("x-auth-token");
-  const decodedPayload = jwt.verify(token, process.env.SECRET);
-  req.user = decodedPayload;
   user = await User.findOne({ "_id": req.user.data._id });
   if (user.role != "customer")
     return res.status(400).json({ message: "You don't have a cart!" })
@@ -361,10 +392,11 @@ module.exports.removeFromCart = async (req, res) => {
   let { id } = req.params;
   let { quantity } = req.body;
   product = await Product.findOne({ "_id": id });
-  const token = req.header("x-auth-token");
-  const decodedPayload = jwt.verify(token, process.env.SECRET);
-  req.user = decodedPayload;
   user = await User.findOne({ "_id": req.user.data._id });
+  let index = user.current_session.cart.findIndex(i => i.product.equals(id));
+  if (index === -1) {
+    return res.status(400).json({ message: "No Such Product in your Cart" });
+  }
   arr = [];
   if (!quantity) {
     arr = user.current_session.cart.filter(i => !i.product.equals(id));
