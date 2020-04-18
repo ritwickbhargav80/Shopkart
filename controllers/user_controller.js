@@ -94,6 +94,7 @@ module.exports.register = async (req, res) => {
   if (!role)
     role = "customer";
   var name;
+  contact = "+91" + contact;
   if (lastName === "") name = firstName;
   else name = firstName + " " + lastName;
   if (!name || !email || !contact || !password || !role)
@@ -197,7 +198,6 @@ module.exports.register = async (req, res) => {
 };
 
 module.exports.addStaff = async (req, res) => {
-
   let { firstName, lastName, email, contact } = req.body;
   let role = "staff";
   let password = generatePassword();
@@ -289,9 +289,9 @@ module.exports.addStaff = async (req, res) => {
 
 module.exports.login = async (req, res) => {
   let { email, mobile, password } = req.body;
+  mobile = "+91" + mobile;
   var user;
   user = await User.findOne({ $or: [{ email: email }, { contact: mobile }] });
-  debugger
   if (!user) {
     return res.status(400).json({ success: false, message: "User not found!" });
   }
@@ -786,7 +786,6 @@ module.exports.verifyContact = async (req, res) => {
 };
 
 module.exports.retryContactVerification = async (req, res) => {
-
   let { contact } = req.params;
   let user = await User.findOne({ contact: contact });
   if (user) {
