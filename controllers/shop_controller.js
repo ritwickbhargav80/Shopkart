@@ -267,7 +267,10 @@ module.exports.viewOneProduct = async (req, res) => {
     shop = user.shop;
   let { id } = req.params;
   product = await Product.findOne({ _id: id });
-  return res.status(200).json({ success: true, product: product });
+  if(product)
+    return res.status(200).json({ success: true, product: product });
+  else
+  return res.status(400).json({ success: false, message: "No such product found!" });
 }
 
 module.exports.viewProducts = async (req, res) => {
