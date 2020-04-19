@@ -276,8 +276,7 @@ module.exports.addProducts = async (req, res) => {
   product = await Product.create(product);
   product.whichShop = process.env.SHOP_ID;
   await product.save();
-  debugger
-  return res.status(400).json({ message: "Product Added Successfully!" });
+  return res.status(200).json({ message: "Product Added Successfully!" });
 }
 
 module.exports.viewOneProduct = async (req, res) => {
@@ -298,6 +297,7 @@ module.exports.viewOneProduct = async (req, res) => {
 }
 
 module.exports.viewProducts = async (req, res) => {
+  debugger
   user = await User.findOne({ "_id": req.user.data._id });
   if (user.role === "customer") {
     if (user.current_session.inShop === false)
@@ -305,8 +305,7 @@ module.exports.viewProducts = async (req, res) => {
     shop = user.current_session.currentShop;
   }
   else
-    shop = user.shop;
-  product = await Product.find({ "whichShop": shop });
+    product = await Product.find({ "whichShop": process.env.SHOP_ID });
   return res.status(200).json({ success: true, product: product });
 }
 
@@ -346,7 +345,6 @@ module.exports.customerCount = async (req, res) => {
 }
 
 module.exports.qrStatus = async (req, res) => {
-  debugger
   user = await User.findOne({ "_id": req.user.data._id });
   if (user.role != "customer")
     return res.status(400).json({ message: "You cannot Shop!" });
