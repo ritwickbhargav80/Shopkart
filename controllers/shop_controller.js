@@ -317,6 +317,13 @@ module.exports.readQrData = async (req, res) => {
   shop = await Shop.findOne({ "_id": id });
   if (user.role != "customer")
     return res.status(400).json({ message: "You cannot Shop!" });
+  if (user.current_session.inShop) {
+    user.current_session.inShop = false;
+    user.current_session.currentShop = undefined;
+    user.current_session.cart = [];
+    await user.save();
+    return res.status(200).json({ message: "Thank you for shopping with us!" });
+  }
   user.current_session.inShop = true;
   user.current_session.currentShop = id;
   let temp = 0;
@@ -332,18 +339,28 @@ module.exports.readQrData = async (req, res) => {
   return res.status(200).json({ message: "Welcome " + user.name + "!" });
 }
 
+module.exports.customerCount = async (req, res) => {
+  let arr = await User.find({ "current_session.inShop": true });
+  debugger
+  return res.status(200).json({ success: true, count: arr.length });
+}
+
 module.exports.qrStatus = async (req, res) => {
+  debugger
   user = await User.findOne({ "_id": req.user.data._id });
   if (user.role != "customer")
     return res.status(400).json({ message: "You cannot Shop!" });
   else {
     if (user.current_session.inShop) {
       if (user.current_session.currentShop._id.equals(process.env.SHOP_ID)) {
-        return res.status(400).json({ success: true, message: "Start your Shopping experience!" });
+        return res.status(200).json({ success: true, message: "Start your Shopping experience!" });
       }
       else {
-        return res.status(200).json({ success: false, message: "Please get your QRcode Scanned!" });
+        return res.status(400).json({ success: false, message: "Please get your QRcode Scanned!" });
       }
+    }
+    else {
+      return res.status(200).json({ success: true, message: "Thank you for shopping with us!" });
     }
   }
 }
