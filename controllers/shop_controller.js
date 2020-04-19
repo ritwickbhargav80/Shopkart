@@ -339,7 +339,8 @@ module.exports.readQrData = async (req, res) => {
 
 module.exports.customerCount = async (req, res) => {
   let arr = await User.find({ "current_session.inShop": true });
-  return res.status(200).json({ success: true, count: arr.length });
+  let arr1 = await User.find({ "role": "customer" });
+  return res.status(200).json({ success: true, count: arr.length, totalCount: arr1.length });
 }
 
 module.exports.qrStatus = async (req, res) => {
