@@ -32,7 +32,7 @@ axios.interceptors.request.use(function (config) {
 });
 
 function setUserToken(token) {
-	axios.defaults.headers.common["Authorization"] = token;
+	axios.defaults.headers.common["x-auth-token"] = token;
 }
 
 export default {

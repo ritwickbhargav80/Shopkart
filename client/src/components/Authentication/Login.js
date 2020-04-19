@@ -55,7 +55,6 @@ const Login = props => {
 	return (
 		<div style={{ height: "100vh", overflow: "hidden" }}>
 			<h2 className="brand-logo">Shopkart</h2>
-			{/* <img src={logo} width={160} className="vidgyor-logo" alt="" /> */}
 			<div
 				title="Log in to your account"
 				className="login-form-wrapper card p-4"

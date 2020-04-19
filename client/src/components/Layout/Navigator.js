@@ -9,7 +9,6 @@ import {
 	BrowserRouter as Router,
 	Link
 } from "react-router-dom";
-// import logo from "../../utils/assets/images/logo-white.svg";
 
 const { Content, Sider } = Layout;
 
@@ -66,7 +65,6 @@ const Dashboard = props => {
 							>
 								<LockOutlined />
 								<span>Sign Out</span>
-								{/* <Link to={route.path} /> */}
 							</Menu.Item>
 						</Menu>
 					</Sider>

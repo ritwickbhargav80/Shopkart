@@ -1,4 +1,4 @@
-// import EventsList from "../components/Events/EventsList";
+import ProductList from "../components/Products/ProductList";
 import Dashboard from "../components/Layout/Dashboard";
 import { AppstoreOutlined, BuildOutlined } from "@ant-design/icons";
 
@@ -16,7 +16,7 @@ let routes = [
 	{
 		path: "/products",
 		exact: true,
-		component: Dashboard,
+		component: ProductList,
 		name: "Products",
 		key: "products",
 		icon: BuildOutlined,
