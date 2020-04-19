@@ -411,10 +411,28 @@ module.exports.login = async (req, res) => {
         expiresIn: 604800 // for 1 week time in milliseconds
       }
     );
+    let user2 = {
+      _id: undefined,
+      name: undefined,
+      email: undefined,
+      role: undefined,
+      contact: undefined,
+      qrcode: {
+        id: undefined,
+        url: undefined
+      }
+    };
+    user2._id = user._id;
+    user2.name = user.name;
+    user2.email = user.email;
+    user2.role = user.role;
+    user2.contact = user.contact;
+    user2.qrcode.id = user.qrcode.id;
+    user2.qrcode.qrcode_url = user.qrcode.url;
     return res
       .header("x-auth-token", token)
       .status(200)
-      .json({ success: true, message: "Logged In!", token: token });
+      .json({ success: true, message: "Logged In!", token: token, user: user2 });
   }
 };
 
