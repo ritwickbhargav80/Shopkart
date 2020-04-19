@@ -206,7 +206,6 @@ module.exports.retryContactVerification = async (req, res) => {
 
 module.exports.addProducts = async (req, res) => {
   user = await User.findOne({ "_id": req.user.data._id });
-  let whichShop = user.shop;
   let { name, category, weight, size, manufacturingDate, expirationDate, expireBefore, price, discount, manufacturer, quantity } = req.body;
   if (expirationDate) {
     if (expireBefore)
@@ -221,12 +220,12 @@ module.exports.addProducts = async (req, res) => {
   let product;
   if (weight) {
     if (expirationDate || expireBefore)
-      product = await Product.findOne({ name, category, "details.weight": weight, expirationDate, expireBefore, manufacturer, manufacturingDate, whichShop });
+      product = await Product.findOne({ name, category, "details.weight": weight, expirationDate, expireBefore, manufacturer, manufacturingDate });
     else
-      product = await Product.findOne({ name, category, "details.weight": weight, expireBefore, manufacturer, manufacturingDate, whichShop });
+      product = await Product.findOne({ name, category, "details.weight": weight, expireBefore, manufacturer, manufacturingDate });
   }
   else
-    product = await Product.findOne({ name, category, "details.size": size, manufacturer, whichShop });
+    product = await Product.findOne({ name, category, "details.size": size, manufacturer });
   if (product)
     return res.status(400).json({ message: "Product is already added!" });
   if (expirationDate || expireBefore)
@@ -275,8 +274,9 @@ module.exports.addProducts = async (req, res) => {
       console.error(err)
     })
   product = await Product.create(product);
-  product.whichShop = user.shop;
+  product.whichShop = process.env.SHOP_ID;
   await product.save();
+  debugger
   return res.status(400).json({ message: "Product Added Successfully!" });
 }
 
