@@ -308,6 +308,12 @@ module.exports.viewProducts = async (req, res) => {
   return res.status(200).json({ success: true, product: product });
 }
 
+module.exports.refillStock = async (req, res) => {
+  let { minQuantity } = req.body;
+  let arr = await Product.find({ quantity: { $lt: minQuantity } });
+  return res.status(200).json({ success: true, products: arr });
+}
+
 module.exports.readQrData = async (req, res) => {
   let { _id } = req.params;
   const id = process.env.SHOP_ID;
