@@ -40,6 +40,19 @@ const ShopSchema = mongoose.Schema({
       type: String,
       required: true
     }
+  },
+  todaySales: {
+    type: [{
+      product: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Products"
+      },
+      quantity: {
+        type: Number,
+        default: 1
+      }
+    }],
+    default: []
   }
 });
 
