@@ -17,14 +17,14 @@ const Dashboard = props => {
 	const [isCollapsed] = useState(false);
 	const routeKey = localStorage.getItem("routeKey");
 
-	// useEffect(() => {
-	// 	if (
-	// 		!localStorage.getItem("token") ||
-	// 		localStorage.getItem("token") === "undefined"
-	// 	) {
-	// 		props.history.push("/login");
-	// 	}
-	// });
+	useEffect(() => {
+		if (
+			!localStorage.getItem("token") ||
+			localStorage.getItem("token") === "undefined"
+		) {
+			props.history.push("/login");
+		}
+	});
 
 	return (
 		<>

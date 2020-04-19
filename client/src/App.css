@@ -17,3 +17,7 @@ body {
 	min-height: 100vh;
 	box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
 }
+
+.card {
+	border: 0;
+}

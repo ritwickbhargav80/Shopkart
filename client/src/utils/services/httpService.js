@@ -27,7 +27,7 @@ axios.interceptors.response.use(
 );
 
 axios.interceptors.request.use(function (config) {
-	config.baseURL = process.env.REACT_APP_API_URL;
+	config.baseURL = process.env.REACT_APP_API_BASE_URL;
 	return config;
 });
 

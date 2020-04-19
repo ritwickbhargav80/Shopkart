@@ -2,7 +2,7 @@ import http from "./httpService";
 import { LOGIN } from "../routes";
 
 const isLoggedIn = () => {
-	const userToken = localStorage.get("user_token");
+	const userToken = localStorage.getItem("user_token");
 	if (userToken) {
 		http.setUserToken(userToken);
 		return userToken;
@@ -11,7 +11,7 @@ const isLoggedIn = () => {
 	}
 };
 
-const loginService = async (email, password) => {
+const loginService = async ({ email, password }) => {
 	const response = await http
 		.post(LOGIN, {
 			email,
@@ -23,13 +23,14 @@ const loginService = async (email, password) => {
 			}
 		});
 	if (response.status === 200) {
-		localStorage.set("user_token", response.data.token);
+		localStorage.setItem("user_token", response.data.token);
 	}
-	return response;
+	return response.data;
 };
 
 const logout = () => {
 	localStorage.clear();
+	window.location.push("/login");
 };
 
 // const registerNewUser = async (fname, lname, gender, emailid, password) => {
