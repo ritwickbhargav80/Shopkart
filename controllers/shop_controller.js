@@ -297,7 +297,6 @@ module.exports.viewOneProduct = async (req, res) => {
 }
 
 module.exports.viewProducts = async (req, res) => {
-  debugger
   user = await User.findOne({ "_id": req.user.data._id });
   if (user.role === "customer") {
     if (user.current_session.inShop === false)
@@ -340,7 +339,6 @@ module.exports.readQrData = async (req, res) => {
 
 module.exports.customerCount = async (req, res) => {
   let arr = await User.find({ "current_session.inShop": true });
-  debugger
   return res.status(200).json({ success: true, count: arr.length });
 }
 
