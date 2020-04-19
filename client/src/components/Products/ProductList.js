@@ -3,10 +3,12 @@ import { getProductsService } from "../../utils/services/products";
 import { _notification } from "../../utils/_helpers";
 import Product from "./Product";
 import "./style.css";
+import Options from "./Options";
 
 export default props => {
 	const [products, setProducts] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
+
 	useEffect(() => {
 		(async () => {
 			try {
@@ -22,35 +24,39 @@ export default props => {
 			}
 		})();
 	}, []);
+
 	return (
-		<table className="table table-hover">
-			<thead>
-				<tr>
-					<th scope="col">#</th>
-					<th scope="col">Name</th>
-					<th scope="col">Category</th>
-					<th scope="col">Price</th>
-					<th scope="col">Quantity</th>
-					<th scope="col">MFD.</th>
-					<th scope="col">EXP.</th>
-					<th scope="col">Manufacturer</th>
-				</tr>
-			</thead>
-			<tbody>
-				{products
-					? products.map((product, idx) => {
-							return <Product product={product} idx={idx} />;
-					  })
-					: null}
-			</tbody>
-			<div className="p-4" style={{ width: "100%" }} hidden={!isLoading}>
-				<div
-					className="spinner-border text-primary text-center mx-auto"
-					role="status"
-				>
-					<span className="sr-only">Loading...</span>
-				</div>
-			</div>
-		</table>
+		<>
+			<Options />
+			<table className="mt-4 table table-hover">
+				<thead>
+					<tr>
+						<th scope="col">#</th>
+						<th scope="col">Name</th>
+						<th scope="col">Category</th>
+						<th scope="col">Price</th>
+						<th scope="col">Quantity</th>
+						<th scope="col">MFD.</th>
+						<th scope="col">EXP.</th>
+						<th scope="col">Manufacturer</th>
+					</tr>
+				</thead>
+				<tbody>
+					{products
+						? products.map((product, idx) => {
+								return <Product product={product} idx={idx} />;
+						  })
+						: null}
+					<div className="p-4" hidden={!isLoading}>
+						<div
+							className="spinner-border text-primary"
+							role="status"
+						>
+							<span className="sr-only">Loading...</span>
+						</div>
+					</div>
+				</tbody>
+			</table>
+		</>
 	);
 };
