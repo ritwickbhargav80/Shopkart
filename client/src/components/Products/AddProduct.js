@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { _notification } from "../../utils/_helpers";
+import { addProductsService } from "../../utils/services/products";
 
 export default props => {
 	const [name, setName] = useState("");
@@ -12,7 +14,35 @@ export default props => {
 	const [mfg, setMfg] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 
-	const handleSubmit = e => {};
+	const handleSubmit = async e => {
+		e.preventDefault();
+		setIsLoading(true);
+		try {
+			const data = {
+				name,
+				category: category,
+				weight,
+				manufacturingDate: mfdDate,
+				expirationDate: expDate,
+				price,
+				discount,
+				quantity,
+				manufacturer: mfg
+			};
+			const res = await addProductsService(data);
+
+			if (res.message === "Product Added Successfully!") {
+				_notification("success", "Success", res.message);
+				props.onAddProduct();
+			} else {
+				_notification("error", "Error", res.message);
+			}
+			setIsLoading(false);
+		} catch (err) {
+			_notification("error", "Error", err.message);
+			setIsLoading(false);
+		}
+	};
 
 	return (
 		<>
@@ -33,17 +63,22 @@ export default props => {
 					<div className="col-md-6">
 						<div className="form-group">
 							<label>Product Category</label>
-							<input
-								type="text"
+							<select
 								className="form-control"
 								onChange={e => setCategory(e.target.value)}
 								required={true}
-							/>
+							>
+								<option value="grocery">Grocery</option>
+								<option value="medicine and drugs">
+									Medicine and Drugs
+								</option>
+								<option value="clothing">Clothing</option>
+							</select>
 						</div>
 					</div>
 					<div className="col-md-6">
 						<div className="form-group">
-							<label>Product Weight</label>
+							<label>Product Weight (in mg)</label>
 							<input
 								type="text"
 								className="form-control"
@@ -54,7 +89,7 @@ export default props => {
 					</div>
 					<div className="col-md-6">
 						<div className="form-group">
-							<label>Product Price</label>
+							<label>Product Price (in INR)</label>
 							<input
 								type="text"
 								className="form-control"
@@ -65,7 +100,7 @@ export default props => {
 					</div>
 					<div className="col-md-6">
 						<div className="form-group">
-							<label>Product Discount</label>
+							<label>Product Discount (in %)</label>
 							<input
 								type="number"
 								className="form-control"
@@ -91,7 +126,7 @@ export default props => {
 							<input
 								type="date"
 								className="form-control"
-								onChange={e => setMfg(e.target.value)}
+								onChange={e => setMfgDate(e.target.value)}
 								required={true}
 							/>
 						</div>
@@ -107,6 +142,18 @@ export default props => {
 							/>
 						</div>
 					</div>
+					<div className="col-md-6">
+						<div className="form-group">
+							<label>Manufacturer</label>
+							<input
+								type="text"
+								className="form-control"
+								onChange={e => setMfg(e.target.value)}
+								required={true}
+							/>
+						</div>
+					</div>
+					<div className="col-md-6"></div>
 
 					<div className="col-md-6">
 						<div className="form-group pb-0 mb-0 mt-4">

@@ -55,6 +55,11 @@ export default props => {
 			_notification("error", "Error", err.message);
 		}
 	};
+
+	const handleAddProduct = () => {
+		onClose();
+		handleRefresh();
+	};
 	return (
 		<>
 			<div className="form-inline">
@@ -90,7 +95,7 @@ export default props => {
 				width={600}
 				visible={isDrVisible}
 			>
-				<AddProduct />
+				<AddProduct onAddProduct={handleAddProduct} />
 			</Drawer>
 		</>
 	);
