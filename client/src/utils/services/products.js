@@ -1,6 +1,6 @@
 import {
 	ADD_PRODUCT,
-	ADD_SHOP,
+	// ADD_SHOP,
 	VIEW_ALL_PRODUCTS,
 	VIEW_PRODUCT
 } from "../routes";
