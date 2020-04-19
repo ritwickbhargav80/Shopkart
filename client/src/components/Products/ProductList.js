@@ -25,9 +25,17 @@ export default props => {
 		})();
 	}, []);
 
+	const handleSearch = value => {
+		setProducts(value);
+	};
+
+	const handleRefresh = value => {
+		setProducts(value);
+	};
+
 	return (
 		<>
-			<Options />
+			<Options onSearch={handleSearch} onRefresh={handleRefresh} />
 			<table className="mt-4 table table-hover">
 				<thead>
 					<tr>
@@ -43,20 +51,21 @@ export default props => {
 				</thead>
 				<tbody>
 					{products
-						? products.map((product, idx) => {
-								return <Product product={product} idx={idx} />;
-						  })
+						? products.map((product, idx) => (
+								<Product
+									product={product}
+									idx={idx}
+									key={product._id}
+								/>
+						  ))
 						: null}
-					<div className="p-4" hidden={!isLoading}>
-						<div
-							className="spinner-border text-primary"
-							role="status"
-						>
-							<span className="sr-only">Loading...</span>
-						</div>
-					</div>
 				</tbody>
 			</table>
+			<div hidden={!isLoading}>
+				<div className="spinner-border text-primary" role="status">
+					<span className="sr-only">Loading...</span>
+				</div>
+			</div>
 		</>
 	);
 };

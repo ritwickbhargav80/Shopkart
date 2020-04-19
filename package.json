@@ -1,7 +1,7 @@
 {
   "name": "shopkart",
   "version": "1.0.0",
-  "description": "Shopkart is simple to use android application that integrates your online and offline shopping experience, making your shopping lifestyle better.",
+  "description": "Shopkart is simple to use mobile application that integrates your online and offline shopping experience, making your shopping lifestyle better.",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/RitwickBhargav/Shopkart-Inc."
+    "url": "https://github.com/RitwickBhargav/Final-year-project"
   },
   "author": "",
   "license": "ISC",
