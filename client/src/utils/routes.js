@@ -1,5 +1,5 @@
 export const LOGIN = "/users/login"; // POST
-
+export const PROFILE = "/users/profile"; // GET
 /****  Shopping routes  ****/
 
 export const ADD_SHOP = "/shop/register"; // POST

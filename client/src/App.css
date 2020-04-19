@@ -21,3 +21,18 @@ body {
 .card {
 	border: 0;
 }
+
+.btn-primary {
+	background-color: #4285f4 !important;
+}
+
+.btn {
+	border: 0 !important;
+	border-radius: 6px !important;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+.btn:hover {
+	transition: 0.2s all ease;
+	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2) !important;
+}
