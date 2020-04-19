@@ -3,7 +3,7 @@ import { Row, Col, Card } from "antd";
 import Icon from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import _routes from "../../utils/_routes";
-
+import UserChart from "./Widgets/UserChart";
 export const DashCards = () => {
 	const iconStyle = color => {
 		return {
@@ -13,8 +13,8 @@ export const DashCards = () => {
 		};
 	};
 	return (
-		<Row gutter={[16, 16]}>
-			{_routes.map(route => {
+		<div className="mt-2 row">
+			{/* {_routes.map(route => {
 				if (route.key === "dashboard") {
 					return null;
 				}
@@ -58,7 +58,21 @@ export const DashCards = () => {
 						</Link>
 					</Col>
 				);
-			})}
-		</Row>
+			})} */}
+			<div className="col-lg-4">
+				<div className="card p-4">
+					<h4 className="text-center">
+						<b>User Counter</b>
+					</h4>
+					<UserChart />
+					<p className="text-center">
+						<span className="mr-4 p-1 active-users-tag">
+							Active
+						</span>
+						<span className="p-1 total-users-tag">Non-Active</span>
+					</p>
+				</div>
+			</div>
+		</div>
 	);
 };

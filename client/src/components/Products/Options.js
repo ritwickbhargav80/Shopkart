@@ -60,6 +60,7 @@ export default props => {
 		onClose();
 		handleRefresh();
 	};
+
 	return (
 		<>
 			<div className="form-inline">
