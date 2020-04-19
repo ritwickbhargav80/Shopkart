@@ -1,38 +1,23 @@
-.App {
-  text-align: center;
+@import url("https://fonts.googleapis.com/css2?family=Sen:wght@400;700;800&display=swap");
+@import "~antd/dist/antd.css";
+
+body {
+	overflow-x: hidden;
+	font-family: Sen !important;
+	background-color: #fafbfc;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.ant-layout-sider-dark,
+.ant-menu-dark {
+	background-color: #18202c !important;
+	color: #fff;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.ant-layout-sider {
+	min-height: 100vh;
+	box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.card {
+	border: 0;
 }
