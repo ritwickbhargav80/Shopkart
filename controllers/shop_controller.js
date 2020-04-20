@@ -494,5 +494,5 @@ module.exports.salesToday = async (req, res) => {
     y += (obj1.price - ((obj1.discount * obj1.price) / 100)) * obj1.quantity;
     obj.products.push(obj1);
   }
-  return res.status(200).json({ success: true, products: obj, totalUnits: x, totalSalePrice: y });
+  return res.status(200).json({ success: true, products: obj, totalUnits: x, totalSalePrice: "Rs. " + y });
 }
