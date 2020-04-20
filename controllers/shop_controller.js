@@ -344,9 +344,9 @@ module.exports.readQrData = async (req, res) => {
 }
 
 module.exports.customerCount = async (req, res) => {
-  let arr = await User.find({ "current_session.inShop": true });
-  let arr1 = await User.find({ "role": "customer" });
-  return res.status(200).json({ success: true, count: arr.length, totalCount: arr1.length });
+  let arr = await User.find({ "current_session.inShop": true }).countDocuments();
+  let arr1 = await User.find({ "role": "customer" }).countDocuments();
+  return res.status(200).json({ success: true, count: arr, totalCount: arr1 });
 }
 
 module.exports.qrStatus = async (req, res) => {
@@ -373,21 +373,38 @@ module.exports.addToCart = async (req, res) => {
   let { quantity } = req.body;
   product = await Product.findOne({ "_id": id });
   user = await User.findOne({ "_id": req.user.data._id });
-  if (!product || !user.current_session.currentShop.equals(product.whichShop))
+  let shop = await Shop.findOne({ "_id": process.env.SHOP_ID });
+  let x = user.current_session.currentShop;
+  if (!product || !x === product.whichShop)
     return res.status(400).json({ message: "No Such Product Exists!" });
-  if (!user.current_session.currentShop.equals(product.whichShop))
+  if (!user.current_session.currentShop === product.whichShop)
     return res.status(400).json({ message: "Please get your QRcode Scanned!" });
   if (user.role != "customer")
     return res.status(400).json({ message: "You cannot Shop!" });
+  if (product.quantity < quantity)
+    return res.status(400).json({ message: "Your Quantity can't be greater than original quantity!" });
   if (user.current_session.cart)
     index = user.current_session.cart.findIndex(i => i.product.equals(id));
   if (index != -1) {
+    let diff = user.current_session.cart[index].quantity - quantity;
+    index1 = shop.todaySales.findIndex(i => i.product.equals(id));
+    totalQuantity = shop.todaySales[index1].quantity - diff;
+    shop.todaySales[index1].quantity = quantity;
+    await shop.save();
     user.current_session.cart[index].quantity = quantity;
     user.save();
     return res.status(200).json({ message: "Cart Updated!" });
   }
-  else
+  else {
     await user.current_session.cart.push({ product: id, quantity: quantity });
+    let totalQuantity;
+    if (shop.todaySales.quantity === undefined)
+      totalQuantity = quantity;
+    else
+      totalQuantity = shop.todaySales.quantity + quantity;
+    await shop.todaySales.push({ product: id, quantity: totalQuantity });
+    await shop.save();
+  }
   user.save();
   res.status(200).json({ message: "Added to the Cart!" });
 }
@@ -413,23 +430,34 @@ module.exports.removeFromCart = async (req, res) => {
   let { quantity } = req.body;
   product = await Product.findOne({ "_id": id });
   user = await User.findOne({ "_id": req.user.data._id });
+  let shop = await Shop.findOne({ "_id": process.env.SHOP_ID });
   let index = user.current_session.cart.findIndex(i => i.product.equals(id));
   if (index === -1) {
     return res.status(400).json({ message: "No Such Product in your Cart" });
   }
   arr = [];
+  arr1 = [];
   if (!quantity) {
+    arr1 = shop.todaySales.filter(i => !i.product.equals(id));
+    shop.todaySales = arr1;
     arr = user.current_session.cart.filter(i => !i.product.equals(id));
     user.current_session.cart = arr;
   }
   else {
     index = user.current_session.cart.findIndex(i => i.product.equals(id));
     if (index != -1) {
+      let diff = user.current_session.cart[index].quantity - quantity;
+      index1 = shop.todaySales.findIndex(i => i.product.equals(id));
+      totalQuantity = shop.todaySales[index1].quantity - diff;
+      debugger
+      shop.todaySales[index1].quantity = quantity;
       user.current_session.cart[index].quantity = quantity;
-      user.save();
+      await shop.save();
+      await user.save();
       return res.status(200).json({ message: "Cart Updated!" });
     }
   }
-  user.save();
+  await shop.save();
+  await user.save();
   return res.status(200).json({ message: "Removed from Cart!" });
 }
