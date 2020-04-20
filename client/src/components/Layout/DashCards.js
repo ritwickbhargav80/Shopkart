@@ -8,6 +8,7 @@ import StockCount from "./Widgets/StockCount";
 import TodaySales from "./Widgets/TodaySales";
 import Calendar from "./Widgets/Calendar";
 import UnitsSoldToday from "./Widgets/UnitsSoldToday";
+import TotalSale from "./Widgets/TotalSale";
 
 export const DashCards = () => {
 	const [isLoading, setIsLoading] = useState(true);
@@ -51,12 +52,21 @@ export const DashCards = () => {
 							<TodaySales />
 						</div>
 					</div>
-					<div className="col-lg-3 mb-4">
+					<div className="col-lg-4 mb-4">
 						<div className="card p-4">
 							<h4 className="text-center">
 								<b>Units sold (Today)</b>
 							</h4>
 							<UnitsSoldToday />
+						</div>
+					</div>
+
+					<div className="col-lg-4 mb-4">
+						<div className="card p-4">
+							<h4 className="text-center">
+								<b>Today Sales</b>
+							</h4>
+							<TotalSale />
 						</div>
 					</div>
 				</div>
