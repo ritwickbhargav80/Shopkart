@@ -58,7 +58,7 @@ export default class Example extends PureComponent {
 					<YAxis />
 					<Tooltip />
 					{/* <Legend /> */}
-					<Bar dataKey="quantity" fill="#0088FE" />
+					<Bar dataKey="quantity" fill="#4285F4" />
 				</BarChart>
 			</>
 		);
