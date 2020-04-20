@@ -6,6 +6,7 @@ import { Skeleton } from "antd";
 import UserChart from "./Widgets/UserChart";
 import StockCount from "./Widgets/StockCount";
 import TodaySales from "./Widgets/TodaySales";
+import Calendar from "./Widgets/Calendar";
 
 export const DashCards = () => {
 	const [isLoading, setIsLoading] = useState(true);
@@ -108,6 +109,9 @@ export const DashCards = () => {
 				<div className="row mt-4">
 					<div className="col-lg-6">
 						<StockCount />
+					</div>
+					<div className="col-lg-4">
+						<Calendar />
 					</div>
 				</div>
 			</Skeleton>
