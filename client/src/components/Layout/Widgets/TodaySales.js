@@ -23,7 +23,7 @@ export default class Example extends PureComponent {
 			try {
 				const res = await getTodaySalesService();
 				if (res.success) {
-					res.products.map(pr => {
+					res.products.products.map(pr => {
 						return this.setState({
 							data: [
 								...this.state.data,
