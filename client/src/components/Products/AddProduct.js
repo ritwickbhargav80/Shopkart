@@ -68,6 +68,9 @@ export default props => {
 								onChange={e => setCategory(e.target.value)}
 								required={true}
 							>
+								<option disabled selected>
+									Choose
+								</option>
 								<option value="grocery">Grocery</option>
 								<option value="medicine and drugs">
 									Medicine and Drugs
@@ -78,7 +81,7 @@ export default props => {
 					</div>
 					<div className="col-md-6">
 						<div className="form-group">
-							<label>Product Weight (in mg)</label>
+							<label>Product Weight (in grams)</label>
 							<input
 								type="text"
 								className="form-control"

@@ -70,7 +70,7 @@ export const DashCards = () => {
 					</Col>
 				);
 			})} */}
-					<div className="col-lg-4">
+					<div className="col-lg-4 mb-4">
 						<div className="card p-4">
 							<h4 className="text-center">
 								<b>User Counter</b>
@@ -87,7 +87,7 @@ export const DashCards = () => {
 						</div>
 					</div>
 
-					<div className="col-lg-6">
+					<div className="col-lg-6 mb-4">
 						<div className="card p-4">
 							<h4 className="text-center">
 								<b>Sale History</b>
