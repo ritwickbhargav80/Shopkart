@@ -94,6 +94,7 @@ export default props => {
 				closable={false}
 				onClose={onClose}
 				width={600}
+				destroyOnClose
 				visible={isDrVisible}
 			>
 				<AddProduct onAddProduct={handleAddProduct} />

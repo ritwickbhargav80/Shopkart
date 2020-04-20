@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Layout, Menu } from "antd";
-import { LockOutlined } from "@ant-design/icons";
+import { LockOutlined, LeftOutlined, RightOutlined } from "@ant-design/icons";
 import routes from "../../utils/_routes";
 import {
 	Redirect,
@@ -13,7 +13,7 @@ import {
 const { Content, Sider } = Layout;
 
 const Dashboard = props => {
-	const [isCollapsed] = useState(false);
+	const [isCollapsed, setIsCollapsed] = useState(false);
 	const routeKey = localStorage.getItem("routeKey");
 
 	useEffect(() => {
@@ -65,6 +65,26 @@ const Dashboard = props => {
 							>
 								<LockOutlined />
 								<span>Sign Out</span>
+							</Menu.Item>
+
+							<Menu.Divider />
+
+							<Menu.Item
+								key={"menu-extend"}
+								onClick={() => {
+									setIsCollapsed(!isCollapsed);
+								}}
+								style={{
+									top: "64vh"
+								}}
+							>
+								{isCollapsed ? (
+									<RightOutlined />
+								) : (
+									<LeftOutlined />
+								)}
+
+								<span></span>
 							</Menu.Item>
 						</Menu>
 					</Sider>
