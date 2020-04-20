@@ -1,10 +1,21 @@
 import React, { useState } from "react";
 import { SyncOutlined } from "@ant-design/icons";
+import { Drawer } from "antd";
 import { getProductsService } from "../../utils/services/products";
 import { _notification } from "../../utils/_helpers";
+import AddProduct from "./AddProduct";
 
 export default props => {
 	const [isLoading, setIsLoading] = useState(false);
+	const [isDrVisible, setIsDrVisible] = useState(false);
+
+	const showDrawer = () => {
+		setIsDrVisible(true);
+	};
+
+	const onClose = () => {
+		setIsDrVisible(false);
+	};
 
 	const handleSearch = async e => {
 		const val = e.target.value;
@@ -44,26 +55,49 @@ export default props => {
 			_notification("error", "Error", err.message);
 		}
 	};
-	return (
-		<div className="form-inline">
-			<button type="button" className="btn btn-primary">
-				Add Product
-			</button>
-			<input
-				type="text"
-				className="form-control ml-4"
-				id="InputSearch"
-				aria-describedby="inputHelp"
-				placeholder="Search Product"
-				onChange={handleSearch}
-			></input>
 
-			<SyncOutlined
-				className="ml-4"
-				style={{ cursor: "pointer" }}
-				onClick={handleRefresh}
-				spin={isLoading}
-			/>
-		</div>
+	const handleAddProduct = () => {
+		onClose();
+		handleRefresh();
+	};
+
+	return (
+		<>
+			<div className="form-inline">
+				<button
+					type="button"
+					className="btn btn-primary"
+					onClick={showDrawer}
+				>
+					Add Product
+				</button>
+				<input
+					type="text"
+					className="form-control ml-4"
+					id="InputSearch"
+					aria-describedby="inputHelp"
+					placeholder="Search Product"
+					onChange={handleSearch}
+				></input>
+
+				<SyncOutlined
+					className="ml-4"
+					style={{ cursor: "pointer" }}
+					onClick={handleRefresh}
+					spin={isLoading}
+				/>
+			</div>
+
+			<Drawer
+				title="Add Product"
+				placement="right"
+				closable={false}
+				onClose={onClose}
+				width={600}
+				visible={isDrVisible}
+			>
+				<AddProduct onAddProduct={handleAddProduct} />
+			</Drawer>
+		</>
 	);
 };

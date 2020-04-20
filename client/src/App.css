@@ -20,6 +20,7 @@ body {
 
 .card {
 	border: 0;
+	/* box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 10px; */
 }
 
 .btn-primary {
@@ -28,7 +29,7 @@ body {
 
 .btn {
 	border: 0 !important;
-	border-radius: 6px !important;
+	border-radius: 4px !important;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
 }
 

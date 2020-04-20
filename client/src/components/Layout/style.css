@@ -1,8 +1,13 @@
-.ant-page-header-heading span {
-	font-size: 24px !important;
-	color: #ffffff;
+.total-users-tag {
+	background-color: #ffbb28;
+	border-radius: 4px;
+	font-size: 12px;
+	color: #fff;
 }
 
-.ant-card-body {
-	padding: 16px !important;
+.active-users-tag {
+	background-color: #0088fe;
+	border-radius: 4px;
+	font-size: 12px;
+	color: #fff;
 }

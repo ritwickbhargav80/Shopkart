@@ -2,7 +2,7 @@ import { PROFILE } from "../routes";
 import { isLoggedIn } from "./auth";
 import http from "../services/httpService";
 
-export async function getProductsService() {
+export async function getProfileService() {
 	const isOkay = isLoggedIn();
 	if (isOkay) {
 		try {

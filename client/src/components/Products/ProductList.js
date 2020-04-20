@@ -62,7 +62,11 @@ export default props => {
 				</tbody>
 			</table>
 			<div hidden={!isLoading}>
-				<div className="spinner-border text-primary" role="status">
+				<div
+					hidden={!isLoading}
+					className="spinner-border spinner-border-sm text-primary mx-auto my-auto"
+					role="status"
+				>
 					<span className="sr-only">Loading...</span>
 				</div>
 			</div>

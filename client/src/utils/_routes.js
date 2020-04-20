@@ -1,6 +1,11 @@
 import ProductList from "../components/Products/ProductList";
 import Dashboard from "../components/Layout/Dashboard";
-import { AppstoreOutlined, BuildOutlined } from "@ant-design/icons";
+import {
+	AppstoreOutlined,
+	BuildOutlined,
+	UserOutlined
+} from "@ant-design/icons";
+import UserInfo from "../components/Profile/UserInfo";
 
 let routes = [
 	{
@@ -22,6 +27,16 @@ let routes = [
 		icon: BuildOutlined,
 		// description: "List of all the events",
 		color: "#DB4437"
+	},
+	{
+		path: "/profile",
+		exact: true,
+		component: UserInfo,
+		name: "Profile",
+		key: "profile",
+		icon: UserOutlined,
+		// description: "List of all the events",
+		color: "#F4B400"
 	}
 ];
 

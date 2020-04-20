@@ -1,18 +1,13 @@
-import {
-	ADD_PRODUCT,
-	// ADD_SHOP,
-	VIEW_ALL_PRODUCTS
-	// VIEW_PRODUCT
-} from "../routes";
+import { USER_COUNT, STOCK_COUNT } from "../routes";
 import { isLoggedIn } from "./auth";
 
 import http from "../services/httpService";
 
-export async function getProductsService() {
+export async function userCountService() {
 	const isOkay = isLoggedIn();
 	if (isOkay) {
 		try {
-			const response = await http.get(VIEW_ALL_PRODUCTS);
+			const response = await http.get(USER_COUNT);
 			if (response.status === 200 && response.data.error === false) {
 				return response.data;
 			} else return response.data;
@@ -24,12 +19,11 @@ export async function getProductsService() {
 	}
 }
 
-export async function addProductsService(data) {
+export async function stockCountService(data) {
 	const isOkay = isLoggedIn();
 	if (isOkay) {
 		try {
-			const response = await http.post(ADD_PRODUCT, data);
-			console.log(response);
+			const response = await http.post(STOCK_COUNT, data);
 			if (response.status === 200 && response.data.error === false) {
 				return response.data;
 			} else return response.data;
