@@ -5,6 +5,7 @@ import {
 	BuildOutlined,
 	UserOutlined
 } from "@ant-design/icons";
+import UserInfo from "../components/Profile/UserInfo";
 
 let routes = [
 	{
@@ -30,7 +31,7 @@ let routes = [
 	{
 		path: "/profile",
 		exact: true,
-		component: ProductList,
+		component: UserInfo,
 		name: "Profile",
 		key: "profile",
 		icon: UserOutlined,

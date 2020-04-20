@@ -5,6 +5,7 @@ import { _notification } from "../../../utils/_helpers";
 export default props => {
 	const [products, setProducts] = useState([]);
 	const [minQuantity, setMinQuant] = useState(10);
+	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
 		(async () => {
@@ -17,7 +18,9 @@ export default props => {
 				} else {
 					_notification("error", "Error", res.message);
 				}
+				setIsLoading(false);
 			} catch (err) {
+				setIsLoading(false);
 				_notification("error", "Error", err.message);
 			}
 		})();
@@ -43,6 +46,7 @@ export default props => {
 					</select>
 				</span>
 			</h4>
+
 			<table className="table table-hover">
 				<thead>
 					<tr>
@@ -67,6 +71,13 @@ export default props => {
 						: null}
 				</tbody>
 			</table>
+			<div
+				hidden={!isLoading}
+				className="spinner-border spinner-border-sm text-primary mx-auto my-auto"
+				role="status"
+			>
+				<span className="sr-only">Loading...</span>
+			</div>
 		</>
 	);
 };

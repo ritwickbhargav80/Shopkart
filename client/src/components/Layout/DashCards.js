@@ -1,23 +1,30 @@
 import React, { useState } from "react";
-import { Row, Col, Card } from "antd";
-import Icon from "@ant-design/icons";
-import { Link } from "react-router-dom";
-import _routes from "../../utils/_routes";
+import { Skeleton } from "antd";
+// import Icon from "@ant-design/icons";
+// import { Link } from "react-router-dom";
+// import _routes from "../../utils/_routes";
 import UserChart from "./Widgets/UserChart";
 import StockCount from "./Widgets/StockCount";
 
 export const DashCards = () => {
-	const iconStyle = color => {
-		return {
-			fontSize: "40px",
-			paddingRight: 8,
-			color: color
-		};
-	};
+	const [isLoading, setIsLoading] = useState(true);
+	// const iconStyle = color => {
+	// 	return {
+	// 		fontSize: "40px",
+	// 		paddingRight: 8,
+	// 		color: color
+	// 	};
+	// };
+
+	setTimeout(() => {
+		setIsLoading(false);
+	}, 800);
+
 	return (
 		<>
-			<div className="mt-2 row">
-				{/* {_routes.map(route => {
+			<Skeleton active loading={isLoading}>
+				<div className="mt-2 row">
+					{/* {_routes.map(route => {
 				if (route.key === "dashboard") {
 					return null;
 				}
@@ -62,29 +69,31 @@ export const DashCards = () => {
 					</Col>
 				);
 			})} */}
-				<div className="col-lg-4">
-					<div className="card p-4">
-						<h4 className="text-center">
-							<b>User Counter</b>
-						</h4>
-						<UserChart />
-						<p className="text-center">
-							<span className="mr-4 p-1 active-users-tag">
-								Active
-							</span>
-							<span className="p-1 total-users-tag">
-								Non-Active
-							</span>
-						</p>
+					<div className="col-lg-4">
+						<div className="card p-4">
+							<h4 className="text-center">
+								<b>User Counter</b>
+							</h4>
+							<UserChart />
+							<p className="text-center">
+								<span className="mr-4 p-1 active-users-tag">
+									Active
+								</span>
+								<span className="p-1 total-users-tag">
+									Non-Active
+								</span>
+							</p>
+						</div>
 					</div>
 				</div>
-			</div>
 
-			<div className="row mt-4">
-				<div className="col-lg-6">
-					<StockCount />
+				<div className="row mt-4">
+					<div className="col-lg-6">
+						<StockCount />
+					</div>
 				</div>
-			</div>
+			</Skeleton>
+			<Skeleton active loading={isLoading}></Skeleton>
 		</>
 	);
 };
