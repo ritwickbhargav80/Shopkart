@@ -9,3 +9,4 @@ export const VIEW_PRODUCT = "/shop/viewone/:id"; // GET
 
 // Stats routes
 export const USER_COUNT = "/shop/count";
+export const STOCK_COUNT = "/shop/refill";
