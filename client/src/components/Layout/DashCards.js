@@ -5,6 +5,7 @@ import { Skeleton } from "antd";
 // import _routes from "../../utils/_routes";
 import UserChart from "./Widgets/UserChart";
 import StockCount from "./Widgets/StockCount";
+import TodaySales from "./Widgets/TodaySales";
 
 export const DashCards = () => {
 	const [isLoading, setIsLoading] = useState(true);
@@ -83,6 +84,23 @@ export const DashCards = () => {
 									Non-Active
 								</span>
 							</p>
+						</div>
+					</div>
+
+					<div className="col-lg-6">
+						<div className="card p-4">
+							<h4 className="text-center">
+								<b>Sale History</b>
+							</h4>
+							<TodaySales />
+							{/* <p className="text-center">
+								<span className="mr-4 p-1 active-users-tag">
+									Active
+								</span>
+								<span className="p-1 total-users-tag">
+									Non-Active
+								</span>
+							</p> */}
 						</div>
 					</div>
 				</div>

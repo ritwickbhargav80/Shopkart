@@ -13,7 +13,7 @@ import {
 const { Content, Sider } = Layout;
 
 const Dashboard = props => {
-	const [isCollapsed, setIsCollapsed] = useState(true);
+	const [isCollapsed, setIsCollapsed] = useState(false);
 	const routeKey = localStorage.getItem("routeKey");
 
 	useEffect(() => {

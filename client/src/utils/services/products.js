@@ -29,7 +29,7 @@ export async function addProductsService(data) {
 	if (isOkay) {
 		try {
 			const response = await http.post(ADD_PRODUCT, data);
-			console.log(response);
+
 			if (response.status === 200 && response.data.error === false) {
 				return response.data;
 			} else return response.data;
