@@ -385,10 +385,10 @@ module.exports.addToCart = async (req, res) => {
   if (user.current_session.cart)
     index = user.current_session.cart.findIndex(i => i.product.equals(id));
   if (index != -1) {
-    let diff = user.current_session.cart[index].quantity - quantity;
     index1 = shop.todaySales.findIndex(i => i.product.equals(id));
+    let diff = user.current_session.cart[index].quantity - quantity;
     totalQuantity = shop.todaySales[index1].quantity - diff;
-    shop.todaySales[index1].quantity = quantity;
+    shop.todaySales[index1].quantity = totalQuantity;
     await shop.save();
     user.current_session.cart[index].quantity = quantity;
     await user.save();
@@ -396,12 +396,17 @@ module.exports.addToCart = async (req, res) => {
   }
   else {
     await user.current_session.cart.push({ product: id, quantity: quantity });
+    index1 = shop.todaySales.findIndex(i => i.product.equals(id));
     let totalQuantity;
-    if (shop.todaySales.quantity === undefined)
-      totalQuantity = quantity;
+    if (index1 === -1)
+      totalQuantity = 0;
     else
-      totalQuantity = shop.todaySales.quantity + quantity;
-    await shop.todaySales.push({ product: id, quantity: totalQuantity });
+      totalQuantity = shop.todaySales[index1].quantity;
+    totalQuantity += quantity;
+    if (totalQuantity != quantity)
+      shop.todaySales[index1].quantity = totalQuantity;
+    else
+      await shop.todaySales.push({ product: id, quantity: totalQuantity });
     await shop.save();
   }
   user.save();
@@ -462,21 +467,23 @@ module.exports.removeFromCart = async (req, res) => {
 
 module.exports.salesToday = async (req, res) => {
   shop = await Shop.findOne({ "_id": process.env.SHOP_ID });
-  console.log(shop.todaySales.length);
   let arr = [];
   let obj = {
-    productName: undefined,
-    quantity: undefined
+    products: []
   };
+  let obj1 = {
+    productName: undefined,
+    quantity: undefined,
+    price: undefined,
+    discount: undefined
+  };
+  let x = 0;
   for (let i = 0; i < shop.todaySales.length; i++) {
     product = await Product.findOne({ "_id": shop.todaySales[i].product });
-    obj = {
-      productName: undefined,
-      quantity: undefined
-    };
-    obj.productName = product.name;
-    obj.quantity = shop.todaySales[i].quantity;
-    arr.push(obj);
+    obj1.productName = product.name;
+    obj1.quantity = shop.todaySales[i].quantity;
+    x += obj1.quantity;
+    obj.products.push(obj1);
   }
-  return res.status(200).json({ success: true, products: arr });
+  return res.status(200).json({ success: true, products: obj, totalUnits: x });
 }
