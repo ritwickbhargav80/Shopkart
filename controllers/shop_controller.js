@@ -303,8 +303,7 @@ module.exports.viewProducts = async (req, res) => {
       return res.status(400).json({ message: "Please get your QRcode Scanned!" });
     shop = user.current_session.currentShop;
   }
-  else
-    product = await Product.find({ "whichShop": process.env.SHOP_ID });
+  product = await Product.find({ "whichShop": process.env.SHOP_ID });
   return res.status(200).json({ success: true, product: product });
 }
 
@@ -392,7 +391,7 @@ module.exports.addToCart = async (req, res) => {
     shop.todaySales[index1].quantity = quantity;
     await shop.save();
     user.current_session.cart[index].quantity = quantity;
-    user.save();
+    await user.save();
     return res.status(200).json({ message: "Cart Updated!" });
   }
   else {
@@ -449,7 +448,6 @@ module.exports.removeFromCart = async (req, res) => {
       let diff = user.current_session.cart[index].quantity - quantity;
       index1 = shop.todaySales.findIndex(i => i.product.equals(id));
       totalQuantity = shop.todaySales[index1].quantity - diff;
-      debugger
       shop.todaySales[index1].quantity = quantity;
       user.current_session.cart[index].quantity = quantity;
       await shop.save();
@@ -460,4 +458,25 @@ module.exports.removeFromCart = async (req, res) => {
   await shop.save();
   await user.save();
   return res.status(200).json({ message: "Removed from Cart!" });
+}
+
+module.exports.salesToday = async (req, res) => {
+  shop = await Shop.findOne({ "_id": process.env.SHOP_ID });
+  console.log(shop.todaySales.length);
+  let arr = [];
+  let obj = {
+    productName: undefined,
+    quantity: undefined
+  };
+  for (let i = 0; i < shop.todaySales.length; i++) {
+    product = await Product.findOne({ "_id": shop.todaySales[i].product });
+    obj = {
+      productName: undefined,
+      quantity: undefined
+    };
+    obj.productName = product.name;
+    obj.quantity = shop.todaySales[i].quantity;
+    arr.push(obj);
+  }
+  return res.status(200).json({ success: true, products: arr });
 }

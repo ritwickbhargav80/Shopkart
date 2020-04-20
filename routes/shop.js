@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-let { register, verifyContact, retryContactVerification, addProducts, viewOneProduct, viewProducts, refillStock, readQrData, customerCount, qrStatus, addToCart, viewCart, removeFromCart } = require("../controllers/shop_controller");
+let { register, verifyContact, retryContactVerification, addProducts, viewOneProduct, viewProducts, refillStock, readQrData, customerCount, qrStatus, addToCart, viewCart, removeFromCart, salesToday } = require("../controllers/shop_controller");
 
 let { adminAuth, staffAuth, customerAuth, allAuth, someAuth, staffandadminAuth } = require("../config/auth");
 
@@ -18,6 +18,7 @@ router.get("/qrStatus", customerAuth, qrStatus);
 router.post("/cart/:id", customerAuth, addToCart);
 router.get("/viewcart", customerAuth, viewCart);
 router.post("/cart/remove/:id", customerAuth, removeFromCart);
+router.get("/salesToday", adminAuth, salesToday);
 //delete put
 //razorpay
 
