@@ -477,12 +477,21 @@ module.exports.salesToday = async (req, res) => {
     price: undefined,
     discount: undefined
   };
-  let x = 0;
+  let x = 0, y = 0;
   for (let i = 0; i < shop.todaySales.length; i++) {
     product = await Product.findOne({ "_id": shop.todaySales[i].product });
+    let obj1 = {
+      productName: undefined,
+      quantity: undefined,
+      price: undefined,
+      discount: undefined
+    };
     obj1.productName = product.name;
     obj1.quantity = shop.todaySales[i].quantity;
+    obj1.price = product.price;
+    obj1.discount = product.discount;
     x += obj1.quantity;
+    y += (obj1.price - ((obj1.discount * obj1.price) / 100));
     obj.products.push(obj1);
   }
   return res.status(200).json({ success: true, products: obj, totalUnits: x });
