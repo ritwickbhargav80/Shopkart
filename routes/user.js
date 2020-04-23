@@ -8,12 +8,12 @@ let { adminAuth, allAuth, someAuth } = require("../config/auth");
 router.post("/register", register);
 router.post("/addStaff", adminAuth, addStaff);
 router.post("/login", login);
-router.get("/verifyEmail/:email/:token", verifyEmail);
+router.get("/verifyEmail/:email/:token", verifyEmail); // token to generate 
 router.post("/verifyMobile/:contact", verifyContact);
 router.get("/retryVerification/:contact", retryContactVerification);
 router.get("/profile", allAuth, profile);
-router.get("/forgetpassword/:emailormobile", sendForgetEmail);
-router.post("/forgetpassword/:email/:token", forgetPassword);
-router.get("/delete/:id/:email", someAuth, deleteUser);
+router.get("/forgetpassword/:emailormobile", sendForgetEmail); // auto-generated
+router.post("/forgetpassword/:emailormobile", forgetPassword); // /forgetpassword/:emailormobile
+router.get("/delete/:id", someAuth, deleteUser);
 
 module.exports = router;
