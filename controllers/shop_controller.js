@@ -232,7 +232,9 @@ module.exports.addProducts = async (req, res) => {
     product = {
       name,
       category,
-      weight,
+      details: {
+        weight
+      },
       expirationDate,
       expireBefore,
       price,
@@ -245,12 +247,15 @@ module.exports.addProducts = async (req, res) => {
     product = {
       name,
       category,
-      size,
+      details: {
+        size
+      },
       price,
       discount,
       manufacturer,
       quantity
     };
+  product = await Product.create(product);
   let JSONobject = JSON.stringify(product);
   var opts = {
     errorCorrectionLevel: 'H',
@@ -273,7 +278,6 @@ module.exports.addProducts = async (req, res) => {
     .catch(err => {
       console.error(err)
     })
-  product = await Product.create(product);
   product.whichShop = process.env.SHOP_ID;
   await product.save();
   return res.status(200).json({ message: "Product Added Successfully!" });
@@ -367,6 +371,27 @@ module.exports.qrStatus = async (req, res) => {
   }
 }
 
+module.exports.addToPreviousOrders = async (req, res) => {
+  let { amount, dateTime, products } = req.body;
+  let previousOrders = {
+    amount: amount,
+    dateTime: dateTime,
+    products: products
+  };
+  user = await User.findOne({ "_id": req.user.data._id });
+  if (!(user.current_session.currentShop.equals(process.env.SHOP_ID)))
+    return res.status(400).json({ message: "Please get your QRcode Scanned!" });
+  if (user.role != "customer")
+    return res.status(400).json({ message: "You cannot Shop!" });
+  await user.previousOrders.push(previousOrders);
+  await user.save();
+  let savedAmount = 0;
+  for (var i = 0; i < products.length; i++)
+    savedAmount += (products[i].price * products[i].quantity);
+  savedAmount = savedAmount - amount;
+  return res.status(200).json({ success: true, message: "Thank you for shopping with us! You have saved Rs. " + savedAmount.toFixed(2) });
+}
+
 module.exports.addToCart = async (req, res) => {
   let { id } = req.params;
   let { quantity } = req.body;
@@ -374,9 +399,9 @@ module.exports.addToCart = async (req, res) => {
   user = await User.findOne({ "_id": req.user.data._id });
   let shop = await Shop.findOne({ "_id": process.env.SHOP_ID });
   let x = user.current_session.currentShop;
-  if (!product || !x === product.whichShop)
+  if (!product || !(x === product.whichShop))
     return res.status(400).json({ message: "No Such Product Exists!" });
-  if (!user.current_session.currentShop === product.whichShop)
+  if (!(user.current_session.currentShop.equals(product.whichShop)))
     return res.status(400).json({ message: "Please get your QRcode Scanned!" });
   if (user.role != "customer")
     return res.status(400).json({ message: "You cannot Shop!" });
@@ -411,6 +436,15 @@ module.exports.addToCart = async (req, res) => {
   }
   user.save();
   res.status(200).json({ message: "Added to the Cart!" });
+}
+
+module.exports.viewPreviousOrders = async (req, res) => {
+  user = await User.findOne({ "_id": req.user.data._id });
+  if (!(user.current_session.currentShop.equals(process.env.SHOP_ID)))
+    return res.status(400).json({ message: "Please get your QRcode Scanned!" });
+  if (user.role != "customer")
+    return res.status(400).json({ message: "You cannot Shop!" });
+  return res.status(200).json({ products: user.previousOrders });
 }
 
 module.exports.viewCart = async (req, res) => {
@@ -494,5 +528,5 @@ module.exports.salesToday = async (req, res) => {
     y += (obj1.price - ((obj1.discount * obj1.price) / 100)) * obj1.quantity;
     obj.products.push(obj1);
   }
-  return res.status(200).json({ success: true, products: obj, totalUnits: x, totalSalePrice: "Rs. " + y });
+  return res.status(200).json({ success: true, products: obj, totalUnits: x, totalSalePrice: "Rs. " + y.toFixed(2) });
 }

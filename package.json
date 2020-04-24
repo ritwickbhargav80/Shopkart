@@ -29,7 +29,6 @@
     "nodemailer": "^6.4.2",
     "nodemailer-smtp-transport": "^2.7.4",
     "qrcode": "^1.4.4",
-    "sendotp": "^1.2.9",
-    "uuid": "^3.4.0"
+    "sendotp": "^1.2.9"
   }
 }

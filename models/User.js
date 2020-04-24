@@ -85,6 +85,38 @@ const UserSchema = mongoose.Schema({
       default: []
     }
   },
+  previousOrders: {
+    type: [{
+      amount: {
+        type: Number
+      },
+      dateTime: {
+        type: Date
+      },
+      products: {
+        type: [{
+          product: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Products"
+          },
+          productName: {
+            type: String
+          },
+          quantity: {
+            type: Number
+          },
+          price: {
+            type: Number
+          },
+          discount: {
+            type: Number
+          }
+        }],
+        default: []
+      }
+    }],
+    default: []
+  },
   previousShopVisits: {
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Shop" }],
     default: []

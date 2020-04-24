@@ -13,7 +13,7 @@ router.post("/verifyMobile/:contact", verifyContact);
 router.get("/retryVerification/:contact", retryContactVerification);
 router.get("/profile", allAuth, profile);
 router.get("/forgetpassword/:emailormobile", sendForgetEmail);
-router.post("/forgetpassword/:email/:token", forgetPassword);
-router.get("/delete/:id/:email", someAuth, deleteUser);
+router.post("/forgetpassword/:emailormobile", forgetPassword);
+router.get("/delete/:id", someAuth, deleteUser);
 
 module.exports = router;
