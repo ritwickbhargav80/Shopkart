@@ -232,7 +232,9 @@ module.exports.addProducts = async (req, res) => {
     product = {
       name,
       category,
-      weight,
+      details: {
+        weight
+      },
       expirationDate,
       expireBefore,
       price,
@@ -245,12 +247,15 @@ module.exports.addProducts = async (req, res) => {
     product = {
       name,
       category,
-      size,
+      details: {
+        size
+      },
       price,
       discount,
       manufacturer,
       quantity
     };
+  product = await Product.create(product);
   let JSONobject = JSON.stringify(product);
   var opts = {
     errorCorrectionLevel: 'H',
@@ -273,7 +278,6 @@ module.exports.addProducts = async (req, res) => {
     .catch(err => {
       console.error(err)
     })
-  product = await Product.create(product);
   product.whichShop = process.env.SHOP_ID;
   await product.save();
   return res.status(200).json({ message: "Product Added Successfully!" });
