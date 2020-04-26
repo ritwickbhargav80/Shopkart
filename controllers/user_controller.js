@@ -1000,7 +1000,69 @@ module.exports.profile = async (req, res) => {
     referral_code: referral_code,
     bonus: bonus
   });
-};
+}
+
+module.exports.update = async (req, res) => {
+  let { name, email, contact } = req.body;
+  let user = await User.findById(req.user.data._id);
+  if (user) {
+    let flag = false, flag1 = false;
+    if (name === user.name && user.email === email && user.contact === contact)
+      return res.status(400).json({ message: "Entries can't be same!" });
+    if (!(user.email === email)) {
+      await sendVerificationLink(email);
+      user.isEmailVerified = false;
+      user.email = email;
+      flag1 = true;
+    }
+    if (!(user.contact === contact)) {
+      user.contact = contact;
+      user.isContactVerified = false;
+      await user.save();
+      await sendOtpToMobile(user);
+      flag = true;
+    }
+    if (!(user.name === name)) {
+      user.name = name;
+    }
+    await user.save();
+    let user1 = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      contact: user.contact
+    };
+    let JSONobject = JSON.stringify(user1);
+    var opts = {
+      errorCorrectionLevel: 'H',
+      type: 'image/jpeg',
+      quality: 1,
+      margin: 1
+    }
+    qrcode.toDataURL(JSONobject, opts)
+      .then(url => {
+        cloudinary.uploader.upload(url, (result, error) => {
+          if (result) {
+            user.qrcode.id = result.public_id;
+            user.qrcode.url = result.url;
+            user.save();
+          } else if (error) {
+            console.log("QR Code is not Uploaded!");
+          }
+        });
+      })
+      .catch(err => {
+        console.error(err)
+      })
+    if (flag || flag1)
+      return res.status(200).json({ contact: flag, message: "Profile updated! Need to verify in order to login successfully next time!" });
+    return res.status(200).json({ message: "Profile updated!" });
+  }
+  else {
+    return res.status(400).json({ message: "No such User!" });
+  }
+}
 
 module.exports.sendForgetEmail = async (req, res) => {
   let { emailormobile } = req.params;
@@ -1012,19 +1074,19 @@ module.exports.sendForgetEmail = async (req, res) => {
     if (user.isContactVerified === true && user.isEmailVerified === true) {
       if (!user.resetPwd.token || user.resetPwd.expiresIn < Date.now()) {
         forgetPasswordEmail(user.email);
-        res.status(200).json({ message: "Forget Password Email Sent!" });
-      } else res.status(400).json({ message: "Already Availed!" });
+        return res.status(200).json({ message: "Forget Password Email Sent!" });
+      } else return res.status(400).json({ message: "Already Availed!" });
     } else if (
       user.isContactVerified === true &&
       user.isEmailVerified === false
     ) {
       if (user.verifyEmail.expiresIn >= Date.now())
-        res.status(200).json({
+        return res.status(200).json({
           message: "Verify your email Id first."
         });
       else {
         await sendVerificationLink(user.email);
-        res.status(200).json({
+        return res.status(200).json({
           message: "Verify your email Id first now."
         });
       }
@@ -1033,12 +1095,12 @@ module.exports.sendForgetEmail = async (req, res) => {
       user.isContactVerified === false
     ) {
       if (user.otpExpiresIn >= Date.now())
-        res.status(200).json({
+        return res.status(200).json({
           message: "Verify your Mobile No. first."
         });
       else {
         await sendOtpToMobile(user);
-        res.status(200).json({
+        return res.status(200).json({
           message: "Verify your Mobile No. first now."
         });
       }
@@ -1047,7 +1109,7 @@ module.exports.sendForgetEmail = async (req, res) => {
         user.verifyEmail.expiresIn >= Date.now() &&
         user.otpExpiresIn >= Date.now()
       )
-        res.status(200).json({
+        return res.status(200).json({
           message: "Verify your email Id first & Mobile No."
         });
       else if (
@@ -1055,7 +1117,7 @@ module.exports.sendForgetEmail = async (req, res) => {
         user.otpExpiresIn >= Date.now()
       ) {
         await sendVerificationLink(user.email);
-        res.status(200).json({
+        return res.status(200).json({
           message: "Verify your email Id first now & Mobile No."
         });
       } else if (
@@ -1063,19 +1125,19 @@ module.exports.sendForgetEmail = async (req, res) => {
         user.otpExpiresIn < Date.now()
       ) {
         await sendOtpToMobile(user);
-        res.status(200).json({
+        return res.status(200).json({
           message: "Verify your email Id first & Mobile No. now"
         });
       } else {
         await sendVerificationLink(user.email);
         await sendOtpToMobile(user);
-        res.status(200).json({
+        return res.status(200).json({
           message: "Verify your email Id first now and Mobile No. now"
         });
       }
     }
   } else {
-    res.status(400).json({ message: "No User Found" });
+    return res.status(400).json({ message: "No User Found" });
   }
 };
 
@@ -1127,10 +1189,6 @@ module.exports.forgetPassword = async (req, res) => {
           message: "Verify your Mobile No. first now."
         });
       }
-    } else if (!user.resetPwd.token) {
-      res.status(400).json({
-        message: "You can't reset your password"
-      });
     } else {
       if (newPassword === confirmPassword) {
         if (await bcrypt.compare(newPassword, user.password))
@@ -1164,7 +1222,6 @@ module.exports.forgetPassword = async (req, res) => {
 };
 
 module.exports.deleteUser = async (req, res) => {
-
   let user = await User.findById(req.params.id);
   if (user) {
     await mailToDeletedUsers(user.email);

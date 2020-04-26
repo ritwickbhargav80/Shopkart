@@ -69,7 +69,7 @@ module.exports.someAuth = async (req, res, next) => {
   } else {
     const decodedPayload = jwt.verify(token, process.env.SECRET);
     req.user = decodedPayload;
-    if (req.user.data.role === "admin") {
+    if ((req.user.data.role === "admin" && user.role != "admin") || (req.user.data.role === "admin" && req.params.id === req.user.data._id)) {
       return next();
     } else if (
       (req.user.data.role === "staff" && req.params.id === req.user.data._id) ||
