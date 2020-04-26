@@ -378,6 +378,7 @@ module.exports.addToPreviousOrders = async (req, res) => {
     dateTime: dateTime,
     products: products
   };
+  console.log(previousOrders);
   user = await User.findOne({ "_id": req.user.data._id });
   if (!(user.current_session.currentShop.equals(process.env.SHOP_ID)))
     return res.status(400).json({ message: "Please get your QRcode Scanned!" });
@@ -387,8 +388,8 @@ module.exports.addToPreviousOrders = async (req, res) => {
   await user.save();
   let savedAmount = 0;
   for (var i = 0; i < products.length; i++)
-    savedAmount += (products[i].price * products[i].quantity);
-  savedAmount = savedAmount - amount;
+    savedAmount += ((products[i].price * (products[i].discount / 100)) * products[i].quantity);
+  savedAmount = amount - savedAmount;
   return res.status(200).json({ success: true, message: "Thank you for shopping with us! You have saved Rs. " + savedAmount.toFixed(2) });
 }
 

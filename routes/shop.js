@@ -12,7 +12,7 @@ router.post("/add", staffandadminAuth, addProducts);
 router.get("/viewone/:id", allAuth, viewOneProduct);
 router.get("/viewall", allAuth, viewProducts);
 router.post("/refill", adminAuth, refillStock);
-router.get("/readQrCode/:_id", customerAuth, readQrData);
+router.get("/readQrCode/:_id", staffandadminAuth, readQrData);
 router.get("/count", staffandadminAuth, customerCount); //check
 router.get("/qrStatus", customerAuth, qrStatus);
 router.post("/previousOrders", customerAuth, addToPreviousOrders);  //amount = 232.8+51.828+1568+120
