@@ -13,14 +13,14 @@ router.get("/viewone/:id", allAuth, viewOneProduct);
 router.get("/viewall", allAuth, viewProducts);
 router.post("/refill", adminAuth, refillStock);
 router.get("/readQrCode/:_id", staffandadminAuth, readQrData);
-router.get("/count", staffandadminAuth, customerCount); //check
+router.get("/count", staffandadminAuth, customerCount);
 router.get("/qrStatus", customerAuth, qrStatus);
 router.post("/previousOrders", customerAuth, addToPreviousOrders);  //amount = 232.8+51.828+1568+120
 router.get("/previousOrders", customerAuth, viewPreviousOrders);
 // router.post("/cart/:id", customerAuth, addToCart);
 // router.get("/viewcart", customerAuth, viewCart);
 // router.post("/cart/remove/:id", customerAuth, removeFromCart);
-router.get("/salesToday", adminAuth, salesToday); //check
+router.get("/salesToday", adminAuth, salesToday);
 //delete put
 //razorpay
 

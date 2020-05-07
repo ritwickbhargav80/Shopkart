@@ -91,7 +91,7 @@ const UserSchema = mongoose.Schema({
         type: Number
       },
       dateTime: {
-        type: Date
+        type: String
       },
       products: {
         type: [{

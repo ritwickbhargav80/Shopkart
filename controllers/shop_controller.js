@@ -378,17 +378,33 @@ module.exports.addToPreviousOrders = async (req, res) => {
     dateTime: dateTime,
     products: products
   };
-  console.log(previousOrders);
   user = await User.findOne({ "_id": req.user.data._id });
+  shop = await Shop.findOne({ "_id": process.env.SHOP_ID });
   if (!(user.current_session.currentShop.equals(process.env.SHOP_ID)))
     return res.status(400).json({ message: "Please get your QRcode Scanned!" });
   if (user.role != "customer")
     return res.status(400).json({ message: "You cannot Shop!" });
   await user.previousOrders.push(previousOrders);
   await user.save();
-  let savedAmount = 0;
-  for (var i = 0; i < products.length; i++)
+  let index1 = 0, savedAmount = 0, totalQuantity = 0;
+  for (var i = 0; i < products.length; i++) {
     savedAmount += ((products[i].price * (products[i].discount / 100)) * products[i].quantity);
+    let product1 = await Product.findById(products[i].product);
+    product1.quantity -= products[i].quantity;
+    await product1.save();
+    index1 = 0, totalQuantity = 0;
+    index1 = shop.todaySales.findIndex(j => j.product.equals(products[i].product));
+    if (index1 === -1)
+      totalQuantity = 0;
+    else
+      totalQuantity = shop.todaySales[index1].quantity;
+    totalQuantity += products[i].quantity;
+    if (totalQuantity != products[i].quantity)
+      shop.todaySales[index1].quantity = totalQuantity;
+    else
+      await shop.todaySales.push({ product: products[i].product, quantity: totalQuantity });
+    await shop.save();
+  }
   savedAmount = amount - savedAmount;
   return res.status(200).json({ success: true, message: "Thank you for shopping with us! You have saved Rs. " + savedAmount.toFixed(2) });
 }
@@ -515,7 +531,9 @@ module.exports.salesToday = async (req, res) => {
   let x = 0, y = 0;
   for (let i = 0; i < shop.todaySales.length; i++) {
     product = await Product.findOne({ "_id": shop.todaySales[i].product });
-    let obj1 = {
+    if (product === null)
+      return res.status(500).json({ message: "Internal Server Error" });
+    obj1 = {
       productName: undefined,
       quantity: undefined,
       price: undefined,

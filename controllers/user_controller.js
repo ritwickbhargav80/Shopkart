@@ -102,6 +102,7 @@ generateRandomString = (req, res) => {
 
 module.exports.register = async (req, res) => {
   let { firstName, lastName, email, contact, password, confirmPassword, referral_code, role } = req.body;
+  console.log(req.body);
   if (!role)
     role = "customer";
   var name;
