@@ -1,8 +1,4 @@
 import React, { useState, useEffect } from "react";
-// import { Form, Input, Button, Card } from "antd";
-// import { UserOutlined, LockOutlined } from "@ant-design/icons";
-// import logo from "../../utils/assets/images/logo-black.svg";
-// import useInputState from "../../hooks/useInputState";
 import "./style.css";
 import { _notification } from "../../utils/_helpers";
 import { loginService } from "../../utils/services/auth";
@@ -11,7 +7,6 @@ const Login = props => {
 	const [email, updateEmail] = useState("");
 	const [password, updatePassword] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
-	// const [form] = Form.useForm();
 
 	useEffect(() => {
 		if (localStorage.getItem("token")) {
@@ -22,8 +17,7 @@ const Login = props => {
 	const handleSubmit = async e => {
 		e.preventDefault();
 		setIsLoading(true);
-		// let err = validateFields();
-		// if (!err) {
+
 		try {
 			const data = { email, password };
 			const res = await loginService(data);
@@ -46,10 +40,6 @@ const Login = props => {
 			_notification("error", "Error", err.message);
 			setIsLoading(false);
 		}
-		// } else {
-		// 	setIsLoading(false);
-		// }
-		// });
 	};
 
 	return (
@@ -87,7 +77,6 @@ const Login = props => {
 					<div className="form-group pb-0 mb-0 mt-4">
 						<button
 							className="btn btn-primary login-form-button"
-							// loading={isLoading}
 							disabled={isLoading}
 						>
 							<div
