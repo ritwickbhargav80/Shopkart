@@ -12,7 +12,7 @@ export default props => {
 				{/* <PageTitle title="Dashboard" /> */}
 				<div className="sub-components">
 					<Row gutter={[16, 16]}>
-						<Col span={18}>
+						<Col span={24}>
 							<DashCards />
 						</Col>
 					</Row>

@@ -1,13 +1,5 @@
 import React, { PureComponent } from "react";
-import {
-	BarChart,
-	Bar,
-	Cell,
-	XAxis,
-	YAxis,
-	CartesianGrid,
-	Tooltip
-} from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 
 import { getTodaySalesService } from "../../../utils/services/stats";
 import { _notification } from "../../../utils/_helpers";
