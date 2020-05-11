@@ -28,7 +28,7 @@ export const DashCards = () => {
 		<>
 			<Skeleton active loading={isLoading}>
 				<div className="mt-2 row">
-					<div className="col-lg-4 mb-4">
+					<div className="col-lg-3 mb-4">
 						<div className="card p-4">
 							<h4 className="text-center">
 								<b>User Counter</b>
@@ -44,7 +44,7 @@ export const DashCards = () => {
 							</p>
 						</div>
 					</div>
-					<div className="col-lg-6 mb-4">
+					<div className="col-lg-5 mb-4">
 						<div className="card p-4">
 							<h4 className="text-center">
 								<b>Sale History</b>
@@ -60,8 +60,13 @@ export const DashCards = () => {
 							<UnitsSoldToday />
 						</div>
 					</div>
+				</div>
 
-					<div className="col-lg-4 mb-4">
+				<div className="row mt-4">
+					<div className="col-lg-6">
+						<StockCount />
+					</div>
+					<div className="col-lg-3 mb-4">
 						<div className="card p-4">
 							<h4 className="text-center">
 								<b>Today Sales</b>
@@ -69,13 +74,7 @@ export const DashCards = () => {
 							<TotalSale />
 						</div>
 					</div>
-				</div>
-
-				<div className="row mt-4">
-					<div className="col-lg-6">
-						<StockCount />
-					</div>
-					<div className="col-lg-4">
+					<div className="col-lg-3">
 						<Calendar />
 					</div>
 				</div>
