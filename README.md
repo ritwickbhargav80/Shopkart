@@ -40,7 +40,7 @@ With shopping track, admin panel, will notify admin about the products with zero
 
 > **[Aakash Goel](https://github.com/goelaakash79)**
 
-> **[Ritwick Bhargav](https://github.com/RitwickBhargav)**
+> **[Ritwick Bhargav](https://github.com/ritwickbhargav80)**
 
 > **[Shreeyanshi Gupta](https://github.com/shrynshigupta06)**
 
