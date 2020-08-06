@@ -4,8 +4,8 @@
   "description": "Shopkart is simple to use mobile application that integrates your online and offline shopping experience, making your shopping lifestyle better.",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "repository": {
     "type": "git",

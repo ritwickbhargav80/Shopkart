@@ -1,9 +1,33 @@
 const express = require("express");
 const router = express.Router();
 
-let { register, verifyContact, retryContactVerification, addProducts, viewOneProduct, viewProducts, refillStock, readQrData, customerCount, qrStatus, addToPreviousOrders, addToCart, viewPreviousOrders, viewCart, removeFromCart, salesToday } = require("../controllers/shop_controller");
+let {
+  register,
+  verifyContact,
+  retryContactVerification,
+  addProducts,
+  viewOneProduct,
+  viewProducts,
+  refillStock,
+  readQrData,
+  customerCount,
+  qrStatus,
+  addToPreviousOrders,
+  addToCart,
+  viewPreviousOrders,
+  viewCart,
+  removeFromCart,
+  salesToday,
+} = require("../controllers/shop_controller");
 
-let { adminAuth, staffAuth, customerAuth, allAuth, someAuth, staffandadminAuth } = require("../config/auth");
+let {
+  adminAuth,
+  staffAuth,
+  customerAuth,
+  allAuth,
+  someAuth,
+  staffandadminAuth,
+} = require("../config/auth");
 
 router.post("/register", adminAuth, register);
 router.post("/verifyMobile/:contact", verifyContact);
@@ -15,7 +39,7 @@ router.post("/refill", adminAuth, refillStock);
 router.get("/readQrCode/:_id", staffandadminAuth, readQrData);
 router.get("/count", staffandadminAuth, customerCount); //check
 router.get("/qrStatus", customerAuth, qrStatus);
-router.post("/previousOrders", customerAuth, addToPreviousOrders);  //amount = 232.8+51.828+1568+120
+router.post("/previousOrders", customerAuth, addToPreviousOrders); //amount = 232.8+51.828+1568+120
 router.get("/previousOrders", customerAuth, viewPreviousOrders);
 // router.post("/cart/:id", customerAuth, addToCart);
 // router.get("/viewcart", customerAuth, viewCart);
