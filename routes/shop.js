@@ -15,6 +15,8 @@ let {
   addToPreviousOrders,
   addToCart,
   viewPreviousOrders,
+  updateProduct,
+  deleteProduct,
   viewCart,
   removeFromCart,
   salesToday,
@@ -41,6 +43,8 @@ router.get("/count", staffandadminAuth, customerCount); //check
 router.get("/qrStatus", customerAuth, qrStatus);
 router.post("/previousOrders", customerAuth, addToPreviousOrders); //amount = 232.8+51.828+1568+120
 router.get("/previousOrders", customerAuth, viewPreviousOrders);
+router.put("/:id", adminAuth, updateProduct);
+router.delete("/:id", adminAuth, deleteProduct);
 // router.post("/cart/:id", customerAuth, addToCart);
 // router.get("/viewcart", customerAuth, viewCart);
 // router.post("/cart/remove/:id", customerAuth, removeFromCart);

@@ -208,94 +208,94 @@ module.exports.addProducts = async (req, res) => {
     name,
     category,
     weight,
-    size,
+    // size,
     manufacturingDate,
     expirationDate,
-    expireBefore,
+    // expireBefore,
     price,
     discount,
     manufacturer,
     quantity,
   } = req.body;
-  if (expirationDate) {
-    if (expireBefore)
-      return res.status(400).json({
-        message: "Can't have both expiration date and expire before!",
-      });
-  }
-  if (weight) {
-    if (size)
-      return res
-        .status(400)
-        .json({ message: "Can't have both expiration weight and size!" });
-  }
+  // if (expirationDate) {
+  //   if (expireBefore)
+  //     return res.status(400).json({
+  //       message: "Can't have both expiration date and expire before!",
+  //     });
+  // }
+  // if (weight) {
+  //   if (size)
+  //     return res
+  //       .status(400)
+  //       .json({ message: "Can't have both expiration weight and size!" });
+  // }
   if (
     !name ||
     !category ||
+    !weight ||
     !price ||
     !discount ||
     !manufacturer ||
     !manufacturingDate ||
+    !expirationDate ||
     !quantity
   )
     return res.status(400).json({ message: "All fields are mandatory!" });
-  let product;
-  if (weight) {
-    if (expirationDate || expireBefore)
-      product = await Product.findOne({
-        name,
-        category,
-        "details.weight": weight,
-        expirationDate,
-        expireBefore,
-        manufacturer,
-        manufacturingDate,
-      });
-    else
-      product = await Product.findOne({
-        name,
-        category,
-        "details.weight": weight,
-        expireBefore,
-        manufacturer,
-        manufacturingDate,
-      });
-  } else
-    product = await Product.findOne({
-      name,
-      category,
-      "details.size": size,
-      manufacturer,
-    });
+
+  // if (weight) {
+  //   if (expirationDate || expireBefore)
+  let product = await Product.findOne({
+    name,
+    category,
+    "details.weight": weight,
+    expirationDate,
+    manufacturer,
+    manufacturingDate,
+  });
+  //   else
+  //     product = await Product.findOne({
+  //       name,
+  //       category,
+  //       "details.weight": weight,
+  //       expireBefore,
+  //       manufacturer,
+  //       manufacturingDate,
+  //     });
+  // } else
+  //   product = await Product.findOne({
+  //     name,
+  //     category,
+  //     "details.size": size,
+  //     manufacturer,
+  //   });
   if (product)
     return res.status(400).json({ message: "Product is already added!" });
-  if (expirationDate || expireBefore)
-    product = {
-      name,
-      category,
-      details: {
-        weight,
-      },
-      expirationDate,
-      expireBefore,
-      price,
-      discount,
-      manufacturer,
-      manufacturingDate,
-      quantity,
-    };
-  else
-    product = {
-      name,
-      category,
-      details: {
-        size,
-      },
-      price,
-      discount,
-      manufacturer,
-      quantity,
-    };
+  // if (expirationDate || expireBefore)
+  product = {
+    name,
+    category,
+    details: {
+      weight,
+    },
+    expirationDate,
+    price,
+    discount,
+    manufacturer,
+    manufacturingDate,
+    quantity,
+  };
+  // else
+  //   product = {
+  //     name,
+  //     category,
+  //     details: {
+  //       size,
+  //     },
+  //     price,
+  //     discount,
+  //     manufacturer,
+  //     quantity,
+  //   };
   product = await Product.create(product);
   let JSONobject = JSON.stringify(product);
   var opts = {
@@ -586,6 +586,58 @@ module.exports.removeFromCart = async (req, res) => {
   await shop.save();
   await user.save();
   return res.status(200).json({ message: "Removed from Cart!" });
+};
+
+module.exports.updateProduct = async (req, res) => {
+  let { id } = req.params;
+  let {
+    name,
+    category,
+    weight,
+    manufacturingDate,
+    expirationDate,
+    price,
+    discount,
+    manufacturer,
+    quantity,
+  } = req.body;
+
+  let product = await Product.findOne({
+    _id: id,
+    whichShop: process.env.SHOP_ID,
+  });
+
+  if (!product)
+    return res.status(200).json({ message: "No such product in database" });
+
+  let details = { weight };
+
+  product.name = name;
+  product.category = category;
+  product.details = details;
+  product.manufacturingDate = manufacturingDate;
+  product.expirationDate = expirationDate;
+  product.price = price;
+  product.discount = discount;
+  product.manufacturer = manufacturer;
+  product.quantity = quantity;
+
+  await product.save();
+  return res.status(200).json({ message: "Modified Successfully!" });
+};
+
+module.exports.deleteProduct = async (req, res) => {
+  let { id } = req.params;
+  let product = await Product.findOne({
+    _id: id,
+    whichShop: process.env.SHOP_ID,
+  });
+
+  if (!product)
+    return res.status(200).json({ message: "No such product in database" });
+
+  await Product.deleteOne({ _id: id });
+  return res.status(200).json({ message: "Deleted Successfully!" });
 };
 
 module.exports.salesToday = async (req, res) => {
