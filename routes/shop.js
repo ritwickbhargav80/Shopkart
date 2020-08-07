@@ -12,6 +12,7 @@ let {
   readQrData,
   customerCount,
   qrStatus,
+  qrStatus1,
   addToPreviousOrders,
   addToCart,
   viewPreviousOrders,
@@ -42,6 +43,7 @@ router.post("/refill", adminAuth, refillStock);
 router.get("/readQrCode/:_id", staffandadminAuth, readQrData);
 router.get("/count", staffandadminAuth, customerCount); //check
 router.get("/qrStatus", customerAuth, qrStatus);
+router.get("/status", customerAuth, qrStatus1);
 router.post("/previousOrders", customerAuth, addToPreviousOrders); //amount = 232.8+51.828+1568+120
 router.get("/previousOrders", customerAuth, viewPreviousOrders);
 router.put("/:id", adminAuth, updateProduct);

@@ -404,14 +404,41 @@ module.exports.qrStatus = async (req, res) => {
   if (user.role != "customer")
     return res.status(400).json({ message: "You cannot Shop!" });
   else {
+    if (user.current_session.inShop) {
+      if (user.current_session.currentShop._id.equals(process.env.SHOP_ID)) {
+        return res
+          .status(200)
+          .json({ success: true, message: "Start your Shopping experience!" });
+      } else {
+        return res
+          .status(400)
+          .json({ success: false, message: "Please get your QRcode Scanned!" });
+      }
+    } else {
+      return res
+        .status(200)
+        .json({ success: true, message: "Thank you for shopping with us!" });
+    }
+  }
+};
+
+module.exports.qrStatus1 = async (req, res) => {
+  user = await User.findOne({ _id: req.user.data._id });
+  if (user.role != "customer")
+    return res.status(400).json({ message: "You cannot Shop!" });
+  else {
     user.current_session.inShop = user.current_session.inShop ? false : true;
     await user.save();
   }
 
   if (user.current_session.inShop)
-    return res.status(200).json({ message: "You can enjoy shopping now!" });
+    return res
+      .status(200)
+      .json({ inShop: true, message: "You can enjoy shopping now!" });
   else
-    return res.status(200).json({ message: "Thank you for shopping with us!" });
+    return res
+      .status(200)
+      .json({ inShop: false, message: "Thank you for shopping with us!" });
 };
 
 module.exports.addToPreviousOrders = async (req, res) => {
