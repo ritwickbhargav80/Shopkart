@@ -3,57 +3,82 @@ const mongoose = require("mongoose");
 const ShopSchema = mongoose.Schema({
   shopName: {
     type: String,
-    required: true
+    required: true,
   },
   description: {
     type: String,
-    required: true
+    required: true,
   },
   contact: {
     type: String,
-    required: true
+    required: true,
   },
   isContactVerified: {
     type: Boolean,
-    default: false
+    default: false,
   },
   otpExpiresIn: {
-    type: Date
+    type: Date,
   },
   address: {
     line1: {
       type: String,
-      required: true
+      required: true,
     },
     line2: {
-      type: String
+      type: String,
     },
     city: {
       type: String,
-      required: true
+      required: true,
     },
     state: {
       type: String,
-      required: true
+      required: true,
     },
     pincode: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   todaySales: {
-    type: [{
-      product: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Products"
+    type: [
+      {
+        product: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Products",
+        },
+        quantity: {
+          type: Number,
+          default: 1,
+        },
       },
-      quantity: {
-        type: Number,
-        default: 1
-      }
-    }],
-    default: []
-  }
+    ],
+    default: [],
+  },
+  prevSales: {
+    type: [
+      {
+        date: { type: String, required: true },
+        totalUnits: { type: Number, required: true },
+        totalSalePrice: { type: Number, required: true },
+        products: {
+          type: [
+            {
+              productName: { type: String, required: true },
+              quantity: {
+                type: Number,
+                default: 1,
+              },
+              price: { type: Number, required: true },
+              discount: { type: Number, required: true },
+            },
+          ],
+          default: [],
+        },
+      },
+    ],
+  },
 });
 
 const Shops = (module.exports = mongoose.model("Shops", ShopSchema));

@@ -20,6 +20,7 @@ let {
   viewCart,
   removeFromCart,
   salesToday,
+  sales,
 } = require("../controllers/shop_controller");
 
 let {
@@ -49,6 +50,7 @@ router.delete("/:id", adminAuth, deleteProduct);
 // router.get("/viewcart", customerAuth, viewCart);
 // router.post("/cart/remove/:id", customerAuth, removeFromCart);
 router.get("/salesToday", adminAuth, salesToday); //check
+router.get("/sales/:specdate", adminAuth, sales); //check
 //delete put
 //razorpay
 

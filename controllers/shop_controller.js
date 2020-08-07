@@ -641,16 +641,9 @@ module.exports.deleteProduct = async (req, res) => {
 };
 
 module.exports.salesToday = async (req, res) => {
-  shop = await Shop.findOne({ _id: process.env.SHOP_ID });
-  let arr = [];
+  let shop = await Shop.findOne({ _id: process.env.SHOP_ID });
   let obj = {
     products: [],
-  };
-  let obj1 = {
-    productName: undefined,
-    quantity: undefined,
-    price: undefined,
-    discount: undefined,
   };
   let x = 0,
     y = 0;
@@ -676,4 +669,59 @@ module.exports.salesToday = async (req, res) => {
     totalUnits: x,
     totalSalePrice: "Rs. " + y.toFixed(2),
   });
+};
+
+module.exports.sales = async (req, res) => {
+  let { specdate } = req.params;
+  let newDate = new Date(specdate);
+  let today = new Date();
+  let shop = await Shop.findOne({ _id: process.env.SHOP_ID });
+  today = today.toLocaleDateString().replace("-", "/");
+  specdate = newDate.toLocaleDateString().replace("-", "/");
+  if (today === specdate) {
+    let obj = {
+      products: [],
+    };
+    let x = 0,
+      y = 0;
+    for (let i = 0; i < shop.todaySales.length; i++) {
+      product = await Product.findOne({ _id: shop.todaySales[i].product });
+      let obj1 = {
+        productName: undefined,
+        quantity: undefined,
+        price: undefined,
+        discount: undefined,
+      };
+      obj1.productName = product.name;
+      obj1.quantity = shop.todaySales[i].quantity;
+      obj1.price = product.price;
+      obj1.discount = product.discount;
+      x += obj1.quantity;
+      y += (obj1.price - (obj1.discount * obj1.price) / 100) * obj1.quantity;
+      obj.products.push(obj1);
+    }
+    return res.status(200).json({
+      success: true,
+      products: obj.products,
+      totalUnits: x,
+      totalSalePrice: "Rs. " + y.toFixed(2),
+    });
+  } else {
+    let details = shop.prevSales.filter((d) => d.date === specdate.toString());
+    if (details.length <= 0)
+      return res.status(200).json({
+        success: true,
+        products: { products: [] },
+        totalUnits: 0,
+        totalSalePrice: "Rs. 0.00",
+      });
+    else {
+      return res.status(200).json({
+        success: true,
+        products: details[0].products,
+        totalUnits: details[0].totalUnits,
+        totalSalePrice: "Rs. " + details[0].totalSalePrice,
+      });
+    }
+  }
 };
