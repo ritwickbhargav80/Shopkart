@@ -74,8 +74,9 @@ var job = new CronJob(
       totalUnits: x,
       totalSalePrice: y.toFixed(2),
     });
-    // shop.todaySales = [];
-    // await shop.save();
+    shop.todaySales = [];
+    await shop.save();
+    console.log("Running Cron!");
   },
   null,
   true,
