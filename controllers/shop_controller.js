@@ -393,6 +393,7 @@ module.exports.readQrData = async (req, res) => {
 module.exports.customerCount = async (req, res) => {
   let arr = await User.find({
     "current_session.inShop": true,
+    role: "customer",
   }).countDocuments();
   let arr1 = await User.find({ role: "customer" }).countDocuments();
   return res.status(200).json({ success: true, count: arr, totalCount: arr1 });
@@ -403,22 +404,14 @@ module.exports.qrStatus = async (req, res) => {
   if (user.role != "customer")
     return res.status(400).json({ message: "You cannot Shop!" });
   else {
-    if (user.current_session.inShop) {
-      if (user.current_session.currentShop._id.equals(process.env.SHOP_ID)) {
-        return res
-          .status(200)
-          .json({ success: true, message: "Start your Shopping experience!" });
-      } else {
-        return res
-          .status(400)
-          .json({ success: false, message: "Please get your QRcode Scanned!" });
-      }
-    } else {
-      return res
-        .status(200)
-        .json({ success: true, message: "Thank you for shopping with us!" });
-    }
+    user.current_session.inShop = user.current_session.inShop ? false : true;
+    await user.save();
   }
+
+  if (user.current_session.inShop)
+    return res.status(200).json({ message: "You can enjoy shopping now!" });
+  else
+    return res.status(200).json({ message: "Thank you for shopping with us!" });
 };
 
 module.exports.addToPreviousOrders = async (req, res) => {
