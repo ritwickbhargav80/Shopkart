@@ -711,7 +711,7 @@ module.exports.sales = async (req, res) => {
     if (details.length <= 0)
       return res.status(200).json({
         success: true,
-        products: { products: [] },
+        products: [],
         totalUnits: 0,
         totalSalePrice: "Rs. 0.00",
       });
