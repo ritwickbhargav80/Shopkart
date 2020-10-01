@@ -1,4 +1,4 @@
-# Welcome to Shopkart!
+# Welcome to Shopkart (final-year-project)!
 
 [![N|Solid](https://image.flaticon.com/icons/svg/66/66580.svg)](https://shopkart-inc.herokuapp.com) **No Calculations, No Queues**
 
